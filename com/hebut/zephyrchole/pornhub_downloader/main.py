@@ -16,7 +16,7 @@ from url_manager import UrlManager
 
 
 def main():
-    chdir('/media/pi/sda1/media/porn/pornhub_downloader_linux')
+    # chdir('/media/pi/sda1/media/porn/pornhub_downloader_linux')
 
     download_repo = '../unsorted'
     if not exists(download_repo):
@@ -30,7 +30,7 @@ def main():
     text_urls = manager.list()
     produce_url_queue = manager.Queue()
 
-    url_manager = UrlManager('input.txt', level, download_url_queue, produce_url_queue, download_queue, text_urls)
+    url_manager = UrlManager('../../../../input.txt', level, download_url_queue, produce_url_queue, download_queue, text_urls)
 
     url_converter = UrlConverter(download_url_queue, url_manager, download_repo, level)
     downloader = DownloadManager(download_url_queue, url_manager, download_repo, level)
