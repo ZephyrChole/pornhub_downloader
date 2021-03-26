@@ -7,7 +7,7 @@
 
 import logging
 from multiprocessing import Manager
-from os import mkdir, chdir
+from os import mkdir
 from os.path import exists
 
 from com.hebut.zephyrchole.pornhub_downloader.url_consumer import DownloadManager
@@ -16,8 +16,6 @@ from com.hebut.zephyrchole.pornhub_downloader.url_manager import UrlManager
 
 
 def main():
-    # chdir('/media/pi/sda1/media/porn/pornhub_downloader_linux')
-
     download_repo = '../unsorted'
     if not exists(download_repo):
         mkdir(download_repo)
@@ -41,7 +39,7 @@ def main():
     downloader.start()
     url_converter.join()
     downloader.join()
-    print("已完成")
+    print("主线程退出")
 
 
 if __name__ == '__main__':
