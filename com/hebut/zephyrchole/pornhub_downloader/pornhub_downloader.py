@@ -2,12 +2,12 @@
 
 # Author:Jiawei Feng
 # @software: PyCharm
-# @file: main.py
+# @file: pornhub_downloader.py
 # @time: 2021/3/26 15:00
 
 import logging
 from multiprocessing import Manager
-from os import mkdir
+from os import mkdir, chdir
 from os.path import exists
 
 from com.hebut.zephyrchole.pornhub_downloader.url_consumer import DownloadManager
@@ -15,11 +15,10 @@ from com.hebut.zephyrchole.pornhub_downloader.url_producer import UrlConverter
 from com.hebut.zephyrchole.pornhub_downloader.url_manager import UrlManager
 
 
-def main():
-    download_repo = './repo'
+def main(download_repo, url_file):
     if not exists(download_repo):
         mkdir(download_repo)
-    level = logging.INFO
+    level = logging.DEBUG
 
     # global variables
     manager = Manager()
@@ -28,7 +27,7 @@ def main():
     text_urls = manager.list()
     produce_url_queue = manager.Queue()
 
-    url_manager = UrlManager('./input.txt', level, download_url_queue, produce_url_queue, download_queue, text_urls)
+    url_manager = UrlManager(url_file, level, download_url_queue, produce_url_queue, download_queue, text_urls)
 
     url_converter = UrlConverter(download_url_queue, url_manager, download_repo, level)
     downloader = DownloadManager(download_url_queue, url_manager, download_repo, level)
@@ -39,8 +38,8 @@ def main():
     downloader.start()
     url_converter.join()
     downloader.join()
-    print("主线程退出")
+    print("已完成")
 
 
 if __name__ == '__main__':
-    main()
+    main('../unsorted', './input.txt')
