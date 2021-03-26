@@ -10,9 +10,9 @@ from multiprocessing import Manager
 from os import mkdir, chdir
 from os.path import exists
 
-from url_consumer import DownloadManager
-from url_producer import UrlConverter
-from url_manager import UrlManager
+from com.hebut.zephyrchole.pornhub_downloader.url_consumer import DownloadManager
+from com.hebut.zephyrchole.pornhub_downloader.url_producer import UrlConverter
+from com.hebut.zephyrchole.pornhub_downloader.url_manager import UrlManager
 
 
 def main():
@@ -30,7 +30,7 @@ def main():
     text_urls = manager.list()
     produce_url_queue = manager.Queue()
 
-    url_manager = UrlManager('../../../../input.txt', level, download_url_queue, produce_url_queue, download_queue, text_urls)
+    url_manager = UrlManager('./input.txt', level, download_url_queue, produce_url_queue, download_queue, text_urls)
 
     url_converter = UrlConverter(download_url_queue, url_manager, download_repo, level)
     downloader = DownloadManager(download_url_queue, url_manager, download_repo, level)

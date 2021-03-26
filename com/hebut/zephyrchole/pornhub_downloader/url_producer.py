@@ -17,7 +17,7 @@ from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.support.wait import WebDriverWait
 
-from url_manager import UrlManager
+from com.hebut.zephyrchole.pornhub_downloader.url_manager import UrlManager
 
 
 class UrlConverter(Thread):

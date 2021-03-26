@@ -15,7 +15,7 @@ from subprocess import Popen
 from threading import Thread
 from time import sleep
 
-from url_manager import UrlManager
+from com.hebut.zephyrchole.pornhub_downloader.url_manager import UrlManager
 
 
 class DownloadManager(Thread):

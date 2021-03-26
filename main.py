@@ -5,10 +5,10 @@
 # @file: main.py
 # @time: 2021/3/26 15:50 
 from os import chdir
-import com.hebut.zephyrchole.pornhub_downloader as pd
+import com.hebut.zephyrchole.pornhub_downloader.main as pd
 
 def main():
-    chdir('/media/pi/sda1/media/porn/pornhub_downloader_linux')
+    chdir('/media/pi/sda1/media/porn/pornhub_downloader_linux_new')
     pd.main()
 
 if __name__ == '__main__':
