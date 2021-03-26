@@ -41,7 +41,7 @@ class DownloadManager(Thread):
 
     @staticmethod
     def download(url_manager, download_repo, name, url, text_url):
-        url_manager.logger.debug('new download session')
+        url_manager.logger.debug('新下载进程')
 
         def check_for_exists(name, logger, full_path):
             def remove_old_files(full_path):
@@ -69,7 +69,7 @@ class DownloadManager(Thread):
             url_manager.logger.debug('url:{} \norigin_url:{}'.format(url, text_url))
             url_manager.notify()
             a = Popen('axel -n 8 -q -o "{}" "{}"'.format(full_path, url), shell=True).wait()
-            url_manager.logger.debug('download returncode: {}'.format(a))
+            url_manager.logger.debug('下载完成，返回码: {}'.format(a))
             if a == False or a == 1:
                 url_manager.produce_url_queue.put(text_url)
             else:
