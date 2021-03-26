@@ -2,7 +2,7 @@
 
 # Author:Jiawei Feng
 # @software: PyCharm
-# @file: main.py
+# @file: pornhub_downloader.py
 # @time: 2021/3/26 15:00
 
 import logging
@@ -15,10 +15,7 @@ from com.hebut.zephyrchole.pornhub_downloader.url_producer import UrlConverter
 from com.hebut.zephyrchole.pornhub_downloader.url_manager import UrlManager
 
 
-def main():
-    # chdir('/media/pi/sda1/media/porn/pornhub_downloader_linux')
-
-    download_repo = '../unsorted'
+def main(download_repo, url_file):
     if not exists(download_repo):
         mkdir(download_repo)
     level = logging.DEBUG
@@ -30,7 +27,7 @@ def main():
     text_urls = manager.list()
     produce_url_queue = manager.Queue()
 
-    url_manager = UrlManager('./input.txt', level, download_url_queue, produce_url_queue, download_queue, text_urls)
+    url_manager = UrlManager(url_file, level, download_url_queue, produce_url_queue, download_queue, text_urls)
 
     url_converter = UrlConverter(download_url_queue, url_manager, download_repo, level)
     downloader = DownloadManager(download_url_queue, url_manager, download_repo, level)
@@ -45,4 +42,4 @@ def main():
 
 
 if __name__ == '__main__':
-    main()
+    main('../unsorted', './input.txt')
