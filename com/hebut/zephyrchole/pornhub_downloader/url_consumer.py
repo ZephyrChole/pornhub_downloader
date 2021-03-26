@@ -70,10 +70,11 @@ class DownloadManager(Thread):
             url_manager.notify()
             a = Popen('axel -n 8 -q -o "{}" "{}"'.format(full_path, url), shell=True).wait()
             url_manager.logger.debug('下载完成，返回码: {}'.format(a))
-            if a == False or a == 1:
-                url_manager.produce_url_queue.put(text_url)
-            else:
+
+            if a == True or a == 0:
                 url_manager.remove_text_url(text_url)
+            else:
+                url_manager.produce_url_queue.put(text_url)
             url_manager.download_queue.get()
             url_manager.notify()
 
