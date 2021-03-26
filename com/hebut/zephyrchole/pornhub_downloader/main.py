@@ -16,7 +16,7 @@ from com.hebut.zephyrchole.pornhub_downloader.url_manager import UrlManager
 
 
 def main():
-    download_repo = '../unsorted'
+    download_repo = './repo'
     if not exists(download_repo):
         mkdir(download_repo)
     level = logging.INFO

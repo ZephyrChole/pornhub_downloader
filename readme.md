@@ -8,6 +8,10 @@
 python -m pip install -r req.txt
 ```
 
+## 如何使用？
+
+在input.txt中加入你想下载的链接，运行根目录下的main.py
+
 
 
 ```mermaid

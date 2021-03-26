@@ -8,7 +8,9 @@ from os import chdir
 import com.hebut.zephyrchole.pornhub_downloader.main as pd
 
 def main():
-    chdir('/media/pi/sda1/media/porn/pornhub_downloader_linux_new')
+    # turn on only if you need it
+    # chdir('/media/pi/sda1/media/porn/pornhub_downloader_linux_new')
+
     pd.main()
 
 if __name__ == '__main__':
