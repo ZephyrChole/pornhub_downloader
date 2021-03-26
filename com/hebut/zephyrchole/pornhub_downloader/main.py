@@ -21,7 +21,7 @@ def main():
     download_repo = '../unsorted'
     if not exists(download_repo):
         mkdir(download_repo)
-    level = logging.DEBUG
+    level = logging.INFO
 
     # global variables
     manager = Manager()
