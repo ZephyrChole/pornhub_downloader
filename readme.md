@@ -1,4 +1,4 @@
-# P站下载器（无需翻墙）
+# P站下载器（无需虚拟专用网络：v啥n）
 
 > 小学渣的作品，不喜勿喷~
 
@@ -6,11 +6,13 @@
 
 ```
 python -m pip install -r req.txt
+sudo apt install axel
 ```
 
 ## 如何使用？
 
-在input.txt中加入你想下载的链接，运行根目录下的main.py
+- 找一台linux主机
+- 在input.txt中加入你想下载的链接，运行根目录下的main.py
 
 
 
