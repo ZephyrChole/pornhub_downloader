@@ -44,15 +44,15 @@ class DownloadManager(Thread):
         url_manager.logger.debug('新下载进程')
 
         def check_for_exists(name, logger, full_path):
-            def remove_old_files(full_path):
-                os.remove(full_path)
-                os.remove('{}.st'.format(full_path))
+            #def remove_old_files(full_path):
+                #os.remove(full_path)
+                #os.remove('{}.st'.format(full_path))
 
             logger.debug('检查 {} 是否在 {} 中'.format(name, download_repo))
             if os.path.exists(full_path):
                 if os.path.getsize(full_path) / 1024 / 1024 + 0.1< size:
-                    logger.info('发现未完成下载: {},已删除'.format(name))
-                    remove_old_files(full_path)
+                    logger.info('发现未完成下载: {},继续...'.format(name))
+                    #remove_old_files(full_path)
                     return False
                 else:
                     return True
@@ -68,7 +68,7 @@ class DownloadManager(Thread):
             url_manager.logger.info('开始新下载: {}'.format(name))
             url_manager.logger.debug('url:{} \norigin_url:{}'.format(url, text_url))
             url_manager.notify()
-            a = Popen('wget -O "{}" "{}"'.format(full_path, url), shell=True).wait()
+            a = Popen('wget --user-agent="Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101 Firefox/60.0" --no-check-certificate -c -q -O "{}" "{}"'.format(full_path, url), shell=True).wait()
             url_manager.logger.debug('下载完成，返回码: {}'.format(a))
 
             if a == True or a == 0:
