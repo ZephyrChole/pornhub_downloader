@@ -44,15 +44,15 @@ class DownloadManager(Thread):
         url_manager.logger.debug('新下载进程')
 
         def check_for_exists(name, logger, full_path):
-            def remove_old_files(full_path):
-                os.remove(full_path)
-                os.remove('{}.st'.format(full_path))
+            # def remove_old_files(full_path):
+            #     os.remove(full_path)
+            #     os.remove('{}.st'.format(full_path))
 
             logger.debug('检查 {} 是否在 {} 中'.format(name, download_repo))
             if os.path.exists(full_path):
                 if os.path.exists('{}.st'.format(full_path)):
-                    logger.info('发现未完成下载: {},已删除'.format(name))
-                    remove_old_files(full_path)
+                    logger.info('发现未完成下载: {} 继续下载'.format(name))
+                    # remove_old_files(full_path)
                     return False
                 else:
                     return True
