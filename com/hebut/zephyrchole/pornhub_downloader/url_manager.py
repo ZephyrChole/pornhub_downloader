@@ -5,6 +5,7 @@
 # @file: url_manager.py
 # @time: 2021/3/26 15:00
 import logging
+import time
 
 
 class UrlManager:
@@ -23,12 +24,12 @@ class UrlManager:
     def init_logger(self, level):
         # init logger
         formatter = logging.Formatter("%(asctime)s - %(message)s")
-        ch = logging.StreamHandler()
-        ch.setLevel(level)
-        ch.setFormatter(formatter)
+        fh = logging.FileHandler('./log/{}.log'.format(time.strftime("%Y-%m-%d", time.localtime())))
+        fh.setLevel(level)
+        fh.setFormatter(formatter)
         self.logger = logging.getLogger('UrlManager')
         self.logger.setLevel(level)
-        self.logger.addHandler(ch)
+        self.logger.addHandler(fh)
 
     def read_in_urls(self, url_file_path):
         with open(url_file_path) as file:

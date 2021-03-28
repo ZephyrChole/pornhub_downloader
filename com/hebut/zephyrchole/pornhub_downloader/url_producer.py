@@ -36,12 +36,12 @@ class UrlConverter(Thread):
 
     def init_logger(self, level):
         formatter = logging.Formatter("%(asctime)s - %(filename)s[line:%(lineno)d] - %(levelname)s: %(message)s")
-        ch = logging.StreamHandler()
-        ch.setLevel(level)
-        ch.setFormatter(formatter)
+        fh = logging.FileHandler('./log/{}.log'.format(time.strftime("%Y-%m-%d", time.localtime())))
+        fh.setLevel(level)
+        fh.setFormatter(formatter)
         self.logger = logging.getLogger('UrlConverter')
         self.logger.setLevel(level)
-        self.logger.addHandler(ch)
+        self.logger.addHandler(fh)
 
     def run(self):
         def text_urls_not_empty():

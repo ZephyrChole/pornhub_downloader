@@ -13,7 +13,7 @@ from queue import Queue
 from random import randint
 from subprocess import Popen
 from threading import Thread
-from time import sleep
+import time
 
 from com.hebut.zephyrchole.pornhub_downloader.url_manager import UrlManager
 
@@ -32,12 +32,12 @@ class DownloadManager(Thread):
     def init_logger(self, level):
         # init logger
         formatter = logging.Formatter("%(asctime)s - %(filename)s[line:%(lineno)d] - %(levelname)s: %(message)s")
-        ch = logging.StreamHandler()
-        ch.setLevel(level)
-        ch.setFormatter(formatter)
+        fh = logging.FileHandler('./log/{}.log'.format(time.strftime("%Y-%m-%d", time.localtime())))
+        fh.setLevel(level)
+        fh.setFormatter(formatter)
         self.logger = logging.getLogger('DownloadManager')
         self.logger.setLevel(level)
-        self.logger.addHandler(ch)
+        self.logger.addHandler(fh)
 
     @staticmethod
     def download(url_manager, download_repo, name, url, text_url, size):
