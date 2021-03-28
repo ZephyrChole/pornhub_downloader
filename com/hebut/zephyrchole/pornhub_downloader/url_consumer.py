@@ -45,7 +45,7 @@ class DownloadManager(Thread):
 
         def check_for_exists(name, logger, full_path):
             def full_downloaded(p, s):
-                return os.path.getsize(p) / 1024 / 1024 + 0.1 < s
+                return os.path.getsize(p) / 1024 / 1024 + 1 < s
 
             logger.debug('检查 {} 是否在 {} 中'.format(name, download_repo))
             if os.path.exists(full_path):
