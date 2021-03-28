@@ -99,18 +99,18 @@ class DownloadManager(Thread):
                 self.pool.apply_async(func=self.download,
                                       args=(self.url_manager, self.download_repo, name, url, origin_url, size))
                 self.url_manager.notify()
-            sleep(randint(1, 10))
+            time.sleep(randint(1, 10))
 
 
 def get_logger(level):
     # init logger
     formatter = logging.Formatter("%(asctime)s - %(filename)s[line:%(lineno)d] - %(levelname)s: %(message)s")
-    ch = logging.StreamHandler()
-    ch.setLevel(level)
-    ch.setFormatter(formatter)
+    fh = logging.FileHandler('./log/{}.log'.format(time.strftime("%Y-%m-%d", time.localtime())))
+    fh.setLevel(level)
+    fh.setFormatter(formatter)
     logger = logging.getLogger('DownloadManager')
     logger.setLevel(level)
-    logger.addHandler(ch)
+    logger.addHandler(fh)
     return logger
 
 
@@ -178,4 +178,4 @@ def run(download_url_queue: Queue, url_manager: UrlManager, download_repo, level
             pool.apply_async(func=download,
                              args=(url_manager, download_repo, name, url, origin_url, size))
             url_manager.notify()
-        sleep(randint(1, 10))
+        time.sleep(randint(1, 10))
