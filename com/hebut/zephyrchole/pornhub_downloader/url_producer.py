@@ -115,8 +115,14 @@ class UrlConverter(Thread):
             else:
                 name = get_noname(repo)
             name = reformat_name('{}.mp4'.format(name))
+            br.find_element_by_css_selector('tr:last-child td a.getSize1').click()
+            while True:
+                result = re.search('(\d+) MB',WebDriverWait(br,30,0.2).until(lambda x:x.find_element_by_css_selector('tr:last-child td span')).text)
+                if result:
+                    size = int(result.group(1))
+                    break
             log.debug('converted info got.name:{} url:{}'.format(name, download_url))
-            return download_url, name, origin_url
+            return download_url, name, origin_url, size
 
         enter_convert_page(self.browser, self.logger)
         fill_in_url_and_click(self.browser, self.logger, url)
