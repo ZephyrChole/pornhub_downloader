@@ -41,12 +41,15 @@ class DownloadManager(Thread):
 
     @staticmethod
     def download(url_manager, download_repo, name, url, text_url, size):
-        url_manager.logger.debug('新下载进程')
+        url_manager.logger.debug('{} 新下载进程'.format(name))
 
         def check_for_exists(name, logger, full_path):
+            def full_downloaded(p, s):
+                return os.path.getsize(p) / 1024 / 1024 + 0.1 < s
+
             logger.debug('检查 {} 是否在 {} 中'.format(name, download_repo))
             if os.path.exists(full_path):
-                if os.path.getsize(full_path) / 1024 / 1024 + 0.1 < size:
+                if full_downloaded(full_path, size):
                     logger.info('发现未完成下载: {},继续...'.format(name))
                     return False
                 else:
@@ -61,19 +64,19 @@ class DownloadManager(Thread):
         else:
             url_manager.download_queue.put(text_url)
             url_manager.logger.info('开始新下载: {}'.format(name))
-            url_manager.logger.debug('url:{} \norigin_url:{}'.format(url, text_url))
+            url_manager.logger.debug('{} url:{} \norigin_url:{}'.format(name, url, text_url))
             url_manager.notify()
             exitcode = Popen(
                 'wget --user-agent="Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101 Firefox/60.0" --no-check-certificate -c -q -O "{}" "{}"'.format(
                     full_path, url), shell=True).wait()
-            url_manager.logger.debug('返回码: {}'.format(exitcode))
+            url_manager.logger.debug('{} 返回码: {}'.format(name, exitcode))
 
             if exitcode == True or exitcode == 0:
                 url_manager.remove_text_url(text_url)
-                url_manager.logger.info('下载成功')
+                url_manager.logger.info('{} 下载成功'.format(name))
             else:
                 url_manager.produce_url_queue.put(text_url)
-                url_manager.logger.info('下载失败')
+                url_manager.logger.info('{} 下载失败'.format(name))
             url_manager.download_queue.get()
             url_manager.notify()
 

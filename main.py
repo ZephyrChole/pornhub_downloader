@@ -10,7 +10,7 @@ import com.hebut.zephyrchole.pornhub_downloader.pornhub_downloader as pd
 
 def main():
     chdir('/media/pi/sda1/media/porn/pornhub_downloader_linux_new')
-    pd.main('../unsorted', './input.txt', 10)
+    pd.main('../unsorted', './input.txt', 10, 'DEBUG')
 
 
 if __name__ == '__main__':

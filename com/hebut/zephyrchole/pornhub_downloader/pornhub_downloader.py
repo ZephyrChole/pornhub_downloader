@@ -15,10 +15,11 @@ from com.hebut.zephyrchole.pornhub_downloader.url_producer import UrlConverter
 from com.hebut.zephyrchole.pornhub_downloader.url_manager import UrlManager
 
 
-def main(download_repo, url_file, pool_capacity=5):
+def main(download_repo, url_file, pool_capacity=5, level='INFO'):
     if not exists(download_repo):
         mkdir(download_repo)
-    level = logging.DEBUG
+    level_dic = {'INFO': logging.INFO, 'DEBUG': logging.DEBUG, 'WARNING': logging.WARNING, 'ERROR': logging.ERROR}
+    level = level_dic.get(level, logging.INFO)
 
     # global variables
     manager = Manager()
