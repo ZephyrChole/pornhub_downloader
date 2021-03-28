@@ -15,7 +15,7 @@ from com.hebut.zephyrchole.pornhub_downloader.url_producer import UrlConverter
 from com.hebut.zephyrchole.pornhub_downloader.url_manager import UrlManager
 
 
-def main(download_repo, url_file):
+def main(download_repo, url_file, pool_capacity=5):
     if not exists(download_repo):
         mkdir(download_repo)
     level = logging.DEBUG
@@ -27,7 +27,8 @@ def main(download_repo, url_file):
     text_urls = manager.list()
     produce_url_queue = manager.Queue()
 
-    url_manager = UrlManager(url_file, level, download_url_queue, produce_url_queue, download_queue, text_urls)
+    url_manager = UrlManager(url_file, pool_capacity, level, download_url_queue, produce_url_queue, download_queue,
+                             text_urls)
 
     url_converter = UrlConverter(download_url_queue, url_manager, download_repo, level)
     downloader = DownloadManager(download_url_queue, url_manager, download_repo, level)

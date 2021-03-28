@@ -8,10 +8,11 @@ import logging
 
 
 class UrlManager:
-    download_queue_max_length = 5
 
-    def __init__(self, url_file_path, level, download_url_queue,produce_url_queue, download_queue, text_urls):
+    def __init__(self, url_file_path, pool_capacity, level, download_url_queue, produce_url_queue, download_queue,
+                 text_urls):
         self.url_file_path = url_file_path
+        self.pool_capacity = pool_capacity
         self.download_queue = download_queue
         self.text_urls = text_urls
         self.produce_url_queue = produce_url_queue

@@ -48,13 +48,13 @@ class UrlConverter(Thread):
             return len(self.url_manager.text_urls) > 0
 
         def download_pool_not_empty():
-            return self.url_manager.download_queue.qsize() > 0
+            return not self.url_manager.download_queue.empty()
 
         def produce_url_queue_not_empty():
-            return self.url_manager.produce_url_queue.qsize() > 0
+            return not self.url_manager.produce_url_queue.empty()
 
         def download_queue_not_full():
-            return self.url_manager.download_queue.qsize() + self.download_url_queue.qsize() < self.url_manager.download_queue_max_length
+            return self.url_manager.download_queue.qsize() + self.download_url_queue.qsize() < self.url_manager.pool_capacity
 
         while text_urls_not_empty() or download_pool_not_empty():
             while produce_url_queue_not_empty() and download_queue_not_full():

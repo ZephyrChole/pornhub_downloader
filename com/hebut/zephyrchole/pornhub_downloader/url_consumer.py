@@ -26,7 +26,7 @@ class DownloadManager(Thread):
         self.download_url_queue = download_url_queue
         self.download_repo = download_repo
         self.url_manager = url_manager
-        self.pool = Pool(self.url_manager.download_queue_max_length)
+        self.pool = Pool(self.url_manager.pool_capacity)
         self.init_logger(level)
 
     def init_logger(self, level):
@@ -44,15 +44,10 @@ class DownloadManager(Thread):
         url_manager.logger.debug('新下载进程')
 
         def check_for_exists(name, logger, full_path):
-            #def remove_old_files(full_path):
-                #os.remove(full_path)
-                #os.remove('{}.st'.format(full_path))
-
             logger.debug('检查 {} 是否在 {} 中'.format(name, download_repo))
             if os.path.exists(full_path):
-                if os.path.getsize(full_path) / 1024 / 1024 + 0.1< size:
+                if os.path.getsize(full_path) / 1024 / 1024 + 0.1 < size:
                     logger.info('发现未完成下载: {},继续...'.format(name))
-                    #remove_old_files(full_path)
                     return False
                 else:
                     return True
@@ -68,13 +63,17 @@ class DownloadManager(Thread):
             url_manager.logger.info('开始新下载: {}'.format(name))
             url_manager.logger.debug('url:{} \norigin_url:{}'.format(url, text_url))
             url_manager.notify()
-            a = Popen('wget --user-agent="Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101 Firefox/60.0" --no-check-certificate -c -q -O "{}" "{}"'.format(full_path, url), shell=True).wait()
-            url_manager.logger.debug('下载完成，返回码: {}'.format(a))
+            exitcode = Popen(
+                'wget --user-agent="Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101 Firefox/60.0" --no-check-certificate -c -q -O "{}" "{}"'.format(
+                    full_path, url), shell=True).wait()
+            url_manager.logger.debug('返回码: {}'.format(exitcode))
 
-            if a == True or a == 0:
+            if exitcode == True or exitcode == 0:
                 url_manager.remove_text_url(text_url)
+                url_manager.logger.info('下载成功')
             else:
                 url_manager.produce_url_queue.put(text_url)
+                url_manager.logger.info('下载失败')
             url_manager.download_queue.get()
             url_manager.notify()
 
@@ -83,7 +82,7 @@ class DownloadManager(Thread):
             return not self.download_url_queue.empty()
 
         def pool_length_not_zero():
-            return self.url_manager.download_queue.qsize() > 0
+            return not self.url_manager.download_queue.empty()
 
         done = False
         while not done:
