@@ -24,7 +24,7 @@ class UrlManager:
     def init_logger(self, level):
         # init logger
         formatter = logging.Formatter("%(asctime)s - %(message)s")
-        fh = logging.FileHandler('./log/{}.log'.format(time.strftime("%Y-%m-%d", time.localtime())))
+        fh = logging.FileHandler('./log/{}.log'.format(time.strftime("%Y-%m-%d", time.localtime())), encoding='utf-8')
         fh.setLevel(level)
         fh.setFormatter(formatter)
         self.logger = logging.getLogger('UrlManager')

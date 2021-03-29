@@ -19,7 +19,7 @@ from com.hebut.zephyrchole.pornhub_downloader.url_manager import UrlManager
 def get_logger(level):
     # init logger
     formatter = logging.Formatter("%(asctime)s - %(filename)s[line:%(lineno)d] - %(levelname)s: %(message)s")
-    fh = logging.FileHandler('./log/{}.log'.format(time.strftime("%Y-%m-%d", time.localtime())))
+    fh = logging.FileHandler('./log/{}.log'.format(time.strftime("%Y-%m-%d", time.localtime())), encoding='utf-8')
     fh.setLevel(level)
     fh.setFormatter(formatter)
     logger = logging.getLogger('DownloadManager')

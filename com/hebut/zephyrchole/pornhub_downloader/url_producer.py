@@ -25,7 +25,7 @@ def get_browser():
 
 def get_logger(level):
     formatter = logging.Formatter("%(asctime)s - %(filename)s[line:%(lineno)d] - %(levelname)s: %(message)s")
-    fh = logging.FileHandler('./log/{}.log'.format(time.strftime("%Y-%m-%d", time.localtime())))
+    fh = logging.FileHandler('./log/{}.log'.format(time.strftime("%Y-%m-%d", time.localtime())), encoding='utf-8')
     fh.setLevel(level)
     fh.setFormatter(formatter)
     logger = logging.getLogger('UrlConverter')
