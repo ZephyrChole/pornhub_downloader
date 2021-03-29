@@ -8,7 +8,7 @@
 import logging
 from os import mkdir
 from os.path import exists
-from multiprocessing import Manager,Process
+from multiprocessing import Manager, Process
 
 from com.hebut.zephyrchole.pornhub_downloader import url_consumer
 from com.hebut.zephyrchole.pornhub_downloader import url_producer
