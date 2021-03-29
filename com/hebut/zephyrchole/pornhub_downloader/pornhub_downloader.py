@@ -6,9 +6,9 @@
 # @time: 2021/3/26 15:00
 
 import logging
-import multiprocessing as mp
-from os import mkdir, chdir
+from os import mkdir
 from os.path import exists
+from multiprocessing import Manager,Process
 
 from com.hebut.zephyrchole.pornhub_downloader import url_consumer
 from com.hebut.zephyrchole.pornhub_downloader import url_producer
@@ -22,7 +22,7 @@ def main(download_repo, url_file, pool_capacity=5, level='INFO'):
     level = level_dic.get(level, logging.INFO)
 
     # global variables
-    manager = mp.Manager()
+    manager = Manager()
     download_url_queue = manager.Queue()
     download_queue = manager.Queue()
     text_urls = manager.list()
@@ -31,8 +31,8 @@ def main(download_repo, url_file, pool_capacity=5, level='INFO'):
     url_manager = UrlManager(url_file, pool_capacity, level, download_url_queue, produce_url_queue, download_queue,
                              text_urls)
 
-    url_converter = mp.Process(target=url_producer.run, args=(download_url_queue, url_manager, download_repo, level))
-    downloader = mp.Process(target=url_consumer.run, args=(download_url_queue, url_manager, download_repo, level))
+    url_converter = Process(target=url_producer.run, args=(download_url_queue, url_manager, download_repo, level))
+    downloader = Process(target=url_consumer.run, args=(download_url_queue, url_manager, download_repo, level))
     url_converter.start()
     downloader.start()
     url_converter.join()

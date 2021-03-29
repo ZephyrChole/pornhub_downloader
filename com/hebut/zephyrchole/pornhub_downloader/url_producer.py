@@ -76,7 +76,7 @@ def convert(logger, browser, download_repo, url_manager, download_url_queue):
 
 def enter_convert_page(browser, logger):
     browser.get('https://www.tubeoffline.com/download-PornHub-videos.php')
-    logger.debug('entered convert_page')
+    logger.debug('enter convert_page')
 
 
 def fill_in_url_and_click(browser, logger, url):
