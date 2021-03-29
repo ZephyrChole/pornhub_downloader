@@ -6,12 +6,13 @@
 
 ```
 python -m pip install -r req.txt
-sudo apt install axel
+sudo apt install axel chromium chromium-chromedriver -y
 ```
 
 ## 如何使用？
 
 - 找一台linux主机
+- 安装上述环境
 - 在input.txt中加入你想下载的链接，运行根目录下的main.py
 
 
