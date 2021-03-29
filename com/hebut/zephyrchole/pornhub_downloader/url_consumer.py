@@ -28,28 +28,33 @@ def get_logger(level):
     return logger
 
 
-def full_downloaded(path, size):
+def full_download(path, size):
     return os.path.getsize(path) / 1024 / 1024 + 1 < size
 
 
-def check_for_exists(logger, download_repo, name, size, full_path):
-    logger.debug('检查 {} 是否在 {} 中'.format(name, download_repo))
-    if os.path.exists(full_path):
-        if full_downloaded(full_path, size):
-            logger.info('发现未完成下载: {},继续...'.format(name))
-            return False
-        else:
-            return True
-    else:
-        return False
+def check_exists(logger, download_repo, name, size, additional_repos):
+    full_downloaded = False
+    for repo in additional_repos + [download_repo]:
+        full_path = os.path.join(repo, name)
+        logger.debug('检查 {} 是否在 {} 中'.format(name, repo))
+        if os.path.exists(full_path):
+            if full_downloaded:
+                os.remove(full_path)
+            elif full_download(full_path, size):
+                logger.debug('{} 在 {} 已完成'.format(name, repo))
+                full_downloaded = True
+            elif repo == download_repo:
+                logger.info('{} 在 {} 未完成,继续...'.format(name, download_repo))
+            else:
+                os.remove(full_path)
+    return full_downloaded
 
 
-def download(url_manager, download_repo, name, url, text_url, size):
+def download(url_manager, download_repo, name, url, text_url, size, additional_repos):
     url_manager.logger.debug('{} 新下载进程'.format(name))
 
     full_path = os.path.join(download_repo, name)
-    if check_for_exists(url_manager.logger, download_repo, name, size, full_path):
-        url_manager.logger.info('发现已完成下载: {} ,已跳过'.format(name))
+    if check_exists(url_manager.logger, download_repo, name, size, additional_repos):
         url_manager.remove_text_url(text_url)
     else:
         url_manager.download_queue.put(text_url)
@@ -71,7 +76,7 @@ def download(url_manager, download_repo, name, url, text_url, size):
         url_manager.notify()
 
 
-def run(download_url_queue: Queue, url_manager: UrlManager, download_repo, level):
+def run(download_url_queue: Queue, url_manager: UrlManager, download_repo, level, additional_repos):
     pool = Pool(url_manager.pool_capacity)
     logger = get_logger(level)
     FINISHED = True
@@ -92,6 +97,6 @@ def run(download_url_queue: Queue, url_manager: UrlManager, download_repo, level
                 break
             url, name, origin_url, size = value
             pool.apply_async(func=download,
-                             args=(url_manager, download_repo, name, url, origin_url, size))
+                             args=(url_manager, download_repo, name, url, origin_url, size, additional_repos))
             url_manager.notify()
         time.sleep(randint(1, 10))

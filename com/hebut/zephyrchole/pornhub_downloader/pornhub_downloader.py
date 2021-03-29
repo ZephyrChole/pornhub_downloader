@@ -15,9 +15,13 @@ from com.hebut.zephyrchole.pornhub_downloader import url_producer
 from com.hebut.zephyrchole.pornhub_downloader.url_manager import UrlManager
 
 
-def main(download_repo, url_file, pool_capacity=5, level='INFO'):
+def main(download_repo, url_file, pool_capacity=5, level='INFO', additional_repos=()):
+    for repo in additional_repos:
+        if not exists(repo):
+            mkdir(repo)
     if not exists(download_repo):
         mkdir(download_repo)
+
     level_dic = {'INFO': logging.INFO, 'DEBUG': logging.DEBUG, 'WARNING': logging.WARNING, 'ERROR': logging.ERROR}
     level = level_dic.get(level, logging.INFO)
 
@@ -32,7 +36,8 @@ def main(download_repo, url_file, pool_capacity=5, level='INFO'):
                              text_urls)
 
     url_converter = Process(target=url_producer.run, args=(download_url_queue, url_manager, download_repo, level))
-    downloader = Process(target=url_consumer.run, args=(download_url_queue, url_manager, download_repo, level))
+    downloader = Process(target=url_consumer.run,
+                         args=(download_url_queue, url_manager, download_repo, level, additional_repos))
     url_converter.start()
     downloader.start()
     url_converter.join()

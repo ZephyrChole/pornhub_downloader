@@ -9,8 +9,8 @@ import com.hebut.zephyrchole.pornhub_downloader.pornhub_downloader as pd
 
 
 def main():
-    chdir('/media/pi/sda1/media/porn/pornhub_downloader')
-    pd.main('../unsorted', './input.txt', 10, 'DEBUG')
+    # chdir('/media/pi/sda1/media/porn/pornhub_downloader')
+    pd.main('../unsorted', './input.txt', 10, 'DEBUG', ['../repo'])
 
 
 if __name__ == '__main__':
