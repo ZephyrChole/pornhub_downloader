@@ -117,7 +117,8 @@ def get_url_and_name(browser, logger, repo, origin_url):
         if result:
             size = int(result.group(1))
             break
-    logger.debug('converted info got.name:{} url:{}'.format(name, download_url))
+    print_name = name[:5] if len(name) > 6 else name
+    logger.debug('converted info got.name:{} url:{}'.format(print_name, download_url))
     return download_url, name, origin_url, size
 
 
