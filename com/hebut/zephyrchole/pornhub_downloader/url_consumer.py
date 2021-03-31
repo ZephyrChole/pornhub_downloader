@@ -68,7 +68,7 @@ def download(url_manager, download_repo, name, url, text_url, size, additional_r
                 full_path, url), shell=True).wait()
         url_manager.logger.debug('返回码: {} {}'.format(print_name, exitcode))
 
-        if exitcode == True or exitcode == 0:
+        if exitcode == 0:
             url_manager.remove_text_url(text_url)
             url_manager.logger.info('下载成功 {}'.format(print_name))
         else:
