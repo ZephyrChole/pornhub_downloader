@@ -36,7 +36,7 @@ def check_exists(logger, download_repo, name, size, additional_repos):
     full_downloaded = False
     for repo in additional_repos + [download_repo]:
         full_path = os.path.join(repo, name)
-        print_name = name[:5] if len(name) > 6 else name
+        print_name = name[:7] if len(name) > 6 else name
         logger.debug('检查 {} 是否在 {} 中'.format(print_name, repo))
         if os.path.exists(full_path):
             if full_downloaded:
