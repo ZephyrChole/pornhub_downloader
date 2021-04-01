@@ -14,24 +14,13 @@ from random import randint
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.support.wait import WebDriverWait
-from com.hebut.zephyrchole.pornhub_downloader.url_manager import UrlManager
+from com.hebut.zephyrchole.pornhub_downloader.url_manager import UrlManager, get_logger
 
 
 def get_browser():
     chrome_options = Options()
     chrome_options.add_argument('--headless')
     return webdriver.Chrome(chrome_options=chrome_options)
-
-
-def get_logger(level):
-    formatter = logging.Formatter("%(asctime)s - %(filename)s[line:%(lineno)d] - %(levelname)s: %(message)s")
-    fh = logging.FileHandler('./log/{}.log'.format(time.strftime("%Y-%m-%d", time.localtime())), encoding='utf-8')
-    fh.setLevel(level)
-    fh.setFormatter(formatter)
-    logger = logging.getLogger('UrlConverter')
-    logger.setLevel(level)
-    logger.addHandler(fh)
-    return logger
 
 
 def run(download_url_queue: Queue, url_manager: UrlManager, download_repo, level):
@@ -48,7 +37,7 @@ def run(download_url_queue: Queue, url_manager: UrlManager, download_repo, level
         return url_manager.download_queue.qsize() + download_url_queue.qsize() < url_manager.pool_capacity
 
     browser = get_browser()
-    logger = get_logger(level)
+    logger = get_logger(level, 'UrlConverter')
     while text_urls_not_empty() or download_pool_not_empty():
         while produce_url_queue_not_empty() and download_queue_not_full():
             convert(logger, browser, download_repo, url_manager, download_url_queue)

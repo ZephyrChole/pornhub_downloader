@@ -9,8 +9,19 @@ import time
 import os
 
 
-class UrlManager:
+def get_logger(level, name):
+    # init logger
+    formatter = logging.Formatter("%(asctime)s - %(message)s")
+    fh = logging.FileHandler('./log/{}.log'.format(time.strftime("%Y-%m-%d", time.localtime())), encoding='utf-8')
+    fh.setLevel(level)
+    fh.setFormatter(formatter)
+    logger = logging.getLogger(name)
+    logger.setLevel(level)
+    logger.addHandler(fh)
+    return logger
 
+
+class UrlManager:
     def __init__(self, url_file_path, pool_capacity, level, download_url_queue, produce_url_queue, download_queue,
                  text_urls):
         self.url_file_path = url_file_path
@@ -19,19 +30,21 @@ class UrlManager:
         self.download_queue = download_queue
         self.text_urls = text_urls
         self.produce_url_queue = produce_url_queue
-        self.init_logger(level)
+        self.logger = get_logger(level, 'UrlManager')
         self.read_in_urls(url_file_path)
         self.download_url_queue = download_url_queue
 
-    def init_logger(self, level):
-        # init logger
-        formatter = logging.Formatter("%(asctime)s - %(message)s")
-        fh = logging.FileHandler('./log/{}.log'.format(time.strftime("%Y-%m-%d", time.localtime())), encoding='utf-8')
-        fh.setLevel(level)
-        fh.setFormatter(formatter)
-        self.logger = logging.getLogger('UrlManager')
-        self.logger.setLevel(level)
-        self.logger.addHandler(fh)
+    def remove_text_url(self, url):
+        self.text_urls.remove(url)
+        self.copy_file(self.url_file_path, self.back_up_path)
+        with open(self.url_file_path, 'w') as file:
+            for url in self.text_urls:
+                file.write(url)
+                file.write('\n')
+        os.remove(self.back_up_path)
+
+    def copy_file(self, src, dst):
+        os.system('cp {} {}'.format(src, dst))
 
     def read_in(self, url_file_path):
         with open(url_file_path) as file:
@@ -43,7 +56,6 @@ class UrlManager:
                     self.produce_url_queue.put(url)
 
     def read_in_urls(self, url_file_path):
-
         if os.path.exists(self.back_up_path):
             self.read_in(self.back_up_path)
             if os.path.exists(url_file_path):
@@ -54,18 +66,6 @@ class UrlManager:
             if os.path.exists(self.back_up_path):
                 os.remove(self.back_up_path)
         self.logger.info('从本地文件: {} 中读取了 {} 个链接'.format(self.url_file_path, len(self.text_urls)))
-
-    def copy_file(self, src, dst):
-        os.system('cp {} {}'.format(src, dst))
-
-    def remove_text_url(self, url):
-        self.text_urls.remove(url)
-        self.copy_file(self.url_file_path, self.back_up_path)
-        with open(self.url_file_path, 'w') as file:
-            for url in self.text_urls:
-                file.write(url)
-                file.write('\n')
-        os.remove(self.back_up_path)
 
     def notify(self):
         self.logger.info(

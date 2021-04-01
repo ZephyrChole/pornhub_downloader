@@ -13,19 +13,7 @@ from multiprocessing import Pool
 from queue import Queue
 from random import randint
 from subprocess import Popen
-from com.hebut.zephyrchole.pornhub_downloader.url_manager import UrlManager
-
-
-def get_logger(level):
-    # init logger
-    formatter = logging.Formatter("%(asctime)s - %(filename)s[line:%(lineno)d] - %(levelname)s: %(message)s")
-    fh = logging.FileHandler('./log/{}.log'.format(time.strftime("%Y-%m-%d", time.localtime())), encoding='utf-8')
-    fh.setLevel(level)
-    fh.setFormatter(formatter)
-    logger = logging.getLogger('DownloadManager')
-    logger.setLevel(level)
-    logger.addHandler(fh)
-    return logger
+from com.hebut.zephyrchole.pornhub_downloader.url_manager import UrlManager, get_logger
 
 
 def full_download(path, size):
@@ -80,7 +68,7 @@ def download(url_manager, download_repo, name, url, text_url, size, additional_r
 
 def run(download_url_queue: Queue, url_manager: UrlManager, download_repo, level, additional_repos):
     pool = Pool(url_manager.pool_capacity)
-    logger = get_logger(level)
+    logger = get_logger(level, 'DownloadManager')
     FINISHED = True
 
     def download_url_queue_not_empty():
