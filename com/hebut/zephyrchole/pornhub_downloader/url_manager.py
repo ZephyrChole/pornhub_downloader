@@ -5,8 +5,8 @@
 # @file: url_manager.py
 # @time: 2021/3/26 15:00
 import logging
-import time
 import os
+import time
 
 
 def get_logger(level, name):
@@ -21,7 +21,6 @@ def get_logger(level, name):
 
 
 class UrlManager:
-
     def __init__(self, url_file_path, pool_capacity, level, download_url_queue, produce_url_queue, download_queue,
                  text_urls):
         self.url_file_path = url_file_path
