@@ -5,15 +5,16 @@
 # @file: url_producer.py
 # @time: 2021/3/26 14:59
 
-import logging
 import os
 import re
 import time
 from queue import Queue
 from random import randint
+
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.support.wait import WebDriverWait
+
 from com.hebut.zephyrchole.pornhub_downloader.url_manager import UrlManager, get_logger
 
 
@@ -106,7 +107,7 @@ def get_url_and_name(browser, logger, repo, origin_url):
         if result:
             size = int(result.group(1))
             break
-    logger.debug('converted info got.name:{} url:{}'.format(name, download_url))
+    logger.debug('converted info got.name:{} url:{} size:{}'.format(name, download_url, size))
     return download_url, name, origin_url, size
 
 
