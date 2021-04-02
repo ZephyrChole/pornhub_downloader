@@ -9,6 +9,17 @@ import time
 import os
 
 
+def get_logger(level, name):
+    formatter = logging.Formatter("%(asctime)s - %(filename)s[line:%(lineno)d] - %(levelname)s: %(message)s")
+    fh = logging.FileHandler('./log/{}.log'.format(time.strftime("%Y-%m-%d", time.localtime())), encoding='utf-8')
+    fh.setLevel(level)
+    fh.setFormatter(formatter)
+    logger = logging.getLogger(name)
+    logger.setLevel(level)
+    logger.addHandler(fh)
+    return logger
+
+
 class UrlManager:
 
     def __init__(self, url_file_path, pool_capacity, level, download_url_queue, produce_url_queue, download_queue,
@@ -19,19 +30,9 @@ class UrlManager:
         self.download_queue = download_queue
         self.text_urls = text_urls
         self.produce_url_queue = produce_url_queue
-        self.init_logger(level)
+        self.logger = get_logger(level, 'UrlManager')
         self.read_in_urls(url_file_path)
         self.download_url_queue = download_url_queue
-
-    def init_logger(self, level):
-        # init logger
-        formatter = logging.Formatter("%(asctime)s - %(message)s")
-        fh = logging.FileHandler('./log/{}.log'.format(time.strftime("%Y-%m-%d", time.localtime())), encoding='utf-8')
-        fh.setLevel(level)
-        fh.setFormatter(formatter)
-        self.logger = logging.getLogger('UrlManager')
-        self.logger.setLevel(level)
-        self.logger.addHandler(fh)
 
     def read_in(self, url_file_path):
         with open(url_file_path) as file:
