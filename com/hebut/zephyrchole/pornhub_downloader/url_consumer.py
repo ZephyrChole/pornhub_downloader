@@ -6,18 +6,18 @@
 # @time: 2021/3/26 15:00 
 
 
-import logging
 import os
 import time
 from multiprocessing import Pool
 from queue import Queue
 from random import randint
 from subprocess import Popen
+
 from com.hebut.zephyrchole.pornhub_downloader.url_manager import UrlManager, get_logger
 
 
 def full_download(path, size):
-    return os.path.getsize(path) / 1024 / 1024 + 1 < size
+    return os.path.getsize(path) / 1024 / 1024 + 1 > size
 
 
 def check_exists(logger, download_repo, name, size, additional_repos):
