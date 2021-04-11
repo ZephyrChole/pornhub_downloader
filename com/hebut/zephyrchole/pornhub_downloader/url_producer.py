@@ -61,7 +61,6 @@ def convert(logger, browser, download_repo, url_manager, download_url_queue):
     if attempt > 3:
         logger.info('重试3次,已跳过')
     url_manager.notify()
-    time.sleep(randint(1, 10))
 
 
 def enter_convert_page(browser, logger):

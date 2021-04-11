@@ -87,4 +87,5 @@ def run(download_url_queue: Queue, url_manager: UrlManager, download_repo, level
             pool.apply_async(func=download,
                              args=(url_manager, download_repo, name, url, origin_url, size, additional_repos))
             url_manager.notify()
+            time.sleep(randint(1, 10))
         time.sleep(randint(1, 10))
