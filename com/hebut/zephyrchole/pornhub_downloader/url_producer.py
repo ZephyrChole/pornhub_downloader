@@ -43,7 +43,8 @@ def run(download_url_queue: Queue, url_manager: UrlManager, download_repo, level
         while produce_url_queue_not_empty() and download_queue_not_full():
             convert(logger, browser, download_repo, url_manager, download_url_queue)
         time.sleep(randint(1, 10))
-    close(browser, download_url_queue)
+    browser.quit()
+    download_url_queue.put(True)
 
 
 def convert(logger, browser, download_repo, url_manager, download_url_queue):
@@ -57,6 +58,7 @@ def convert(logger, browser, download_repo, url_manager, download_url_queue):
             attempt += 1
             logger.warning(str(e))
             logger.warning('重试{}次'.format(attempt))
+            browser.quit()
             browser = get_browser()
     if attempt > 3:
         logger.info('重试3次,已跳过')
@@ -114,8 +116,3 @@ def get_video_url_and_name(browser, logger, download_repo, url):
     enter_convert_page(browser, logger)
     fill_in_url_and_click(browser, logger, url)
     return get_url_and_name(browser, logger, download_repo, url)
-
-
-def close(browser, download_url_queue):
-    browser.quit()
-    download_url_queue.put(True)
