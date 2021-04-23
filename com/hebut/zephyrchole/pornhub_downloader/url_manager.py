@@ -11,7 +11,7 @@ import time
 
 def get_logger(level, name):
     formatter = logging.Formatter("%(asctime)s - %(filename)s[line:%(lineno)d] - %(levelname)s: %(message)s")
-    fh = logging.FileHandler('./log/{}.log'.format(time.strftime("%Y-%m-%d", time.localtime())), encoding='utf-8')
+    fh = logging.FileHandler(f'./log/{time.strftime("%Y-%m-%d", time.localtime())}.log', encoding='utf-8')
     fh.setLevel(level)
     fh.setFormatter(formatter)
     logger = logging.getLogger(name)
@@ -24,7 +24,7 @@ class UrlManager:
     def __init__(self, url_file_path, pool_capacity, level, download_url_queue, produce_url_queue, download_queue,
                  text_urls):
         self.url_file_path = url_file_path
-        self.back_up_path = '{}.bak'.format(url_file_path)
+        self.back_up_path = f'{url_file_path}.bak'
         self.pool_capacity = pool_capacity
         self.download_queue = download_queue
         self.text_urls = text_urls
@@ -53,10 +53,10 @@ class UrlManager:
             self.read_in(url_file_path)
             if os.path.exists(self.back_up_path):
                 os.remove(self.back_up_path)
-        self.logger.info('从本地文件: {} 中读取了 {} 个链接'.format(self.url_file_path, len(self.text_urls)))
+        self.logger.info(f'从本地文件: {self.url_file_path} 中读取了 {len(self.text_urls)} 个链接')
 
     def copy_file(self, src, dst):
-        os.system('cp {} {}'.format(src, dst))
+        os.system(f'cp {src} {dst}')
 
     def remove_text_url(self, url):
         self.text_urls.remove(url)
@@ -69,5 +69,4 @@ class UrlManager:
 
     def notify(self):
         self.logger.info(
-            '本地链接:{} 内存原链接:{} 下载队列:{} 下载链接缓存区:{}'.format(len(self.text_urls), self.produce_url_queue.qsize(),
-                                                         self.download_queue.qsize(), self.download_url_queue.qsize()))
+            f'本地链接:{len(self.text_urls)} 内存原链接:{self.produce_url_queue.qsize()} 下载队列:{self.download_queue.qsize()} 下载链接缓存区:{self.download_url_queue.qsize()}')

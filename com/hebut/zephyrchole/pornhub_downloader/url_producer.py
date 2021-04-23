@@ -57,7 +57,7 @@ def convert(logger, browser, download_repo, url_manager, download_url_queue):
         except Exception as e:
             attempt += 1
             logger.warning(str(e))
-            logger.warning('重试{}次'.format(attempt))
+            logger.warning(f'重试{attempt}次')
             browser.quit()
             browser = get_browser()
     if attempt > 3:
@@ -82,13 +82,13 @@ def fill_in_url_and_click(browser, logger, url):
 def get_url_and_name(browser, logger, repo, origin_url):
     def get_noname(repo):
         counter = 0
-        while os.path.exists(os.path.join(repo, 'NoName{}'.format(counter))):
+        while os.path.exists(os.path.join(repo, f'NoName{counter}')):
             counter += 1
-        return 'NoName{}'.format(counter)
+        return f'NoName{counter}'
 
     def reformat_name(n):
         banned_symbols = ['?', '/', r'\\', ':', '*', '"', '<', '>', '|']
-        return re.sub('|'.join(list(map(lambda x: '[{}]'.format(x), banned_symbols))), '', n)
+        return re.sub('|'.join(list(map(lambda x: f'[{x}]', banned_symbols))), '', n)
 
     WebDriverWait(browser, 30, 0.2).until(lambda x: x.find_element_by_css_selector(
         'div#videoDownload table tbody tr:last-child td:last-child a') and x.find_element_by_css_selector(
@@ -100,7 +100,7 @@ def get_url_and_name(browser, logger, repo, origin_url):
         name = result.group(1)
     else:
         name = get_noname(repo)
-    name = reformat_name('{}.mp4'.format(name))
+    name = reformat_name(f'{name}.mp4')
     browser.find_element_by_css_selector('tr:last-child td a.getSize1').click()
     while True:
         result = re.search('(\d+) MB', WebDriverWait(browser, 30, 0.2).until(
@@ -108,7 +108,7 @@ def get_url_and_name(browser, logger, repo, origin_url):
         if result:
             size = int(result.group(1))
             break
-    logger.debug('converted info got.name:{} url:{} size:{}'.format(name, download_url, size))
+    logger.debug(f'converted info got.name:{name} url:{download_url} size:{size}')
     return download_url, name, origin_url, size
 
 
