@@ -65,7 +65,7 @@ def download(url_manager, download_repo, name, url, text_url, size, additional_r
 
 
 def run(download_url_queue: Queue, url_manager: UrlManager, download_repo, level, additional_repos):
-    pool = Pool(url_manager.pool_capacity)
+    pool = Pool()
     logger = get_logger(level, 'DownloadManager')
     FINISHED = True
 
