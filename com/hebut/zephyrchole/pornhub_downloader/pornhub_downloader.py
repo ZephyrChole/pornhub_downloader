@@ -5,25 +5,21 @@
 # @file: pornhub_downloader.py
 # @time: 2021/3/26 15:00
 
-import logging
+from multiprocessing import Manager, Process
 from os import mkdir
 from os.path import exists
-from multiprocessing import Manager, Process
 
 from com.hebut.zephyrchole.pornhub_downloader import url_consumer
 from com.hebut.zephyrchole.pornhub_downloader import url_producer
 from com.hebut.zephyrchole.pornhub_downloader.url_manager import UrlManager
 
 
-def main(download_repo, url_file, pool_capacity=5, level='INFO', additional_repos=()):
+def main(download_repo, url_file, level, pool_capacity=5, additional_repos=()):
     for repo in additional_repos:
         if not exists(repo):
             mkdir(repo)
     if not exists(download_repo):
         mkdir(download_repo)
-
-    level_dic = {'INFO': logging.INFO, 'DEBUG': logging.DEBUG, 'WARNING': logging.WARNING, 'ERROR': logging.ERROR}
-    level = level_dic.get(level, logging.INFO)
 
     # global variables
     manager = Manager()
@@ -43,7 +39,3 @@ def main(download_repo, url_file, pool_capacity=5, level='INFO', additional_repo
     url_converter.join()
     downloader.join()
     print("已完成")
-
-
-if __name__ == '__main__':
-    main('../unsorted', './input.txt')
