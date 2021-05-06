@@ -16,33 +16,36 @@ from subprocess import Popen
 from com.hebut.zephyrchole.pornhub_downloader.url_manager import UrlManager, get_logger
 
 
-def full_download(path, size):
-    return os.path.getsize(path) / 1024 / 1024 + 1 > size
+def run(download_url_queue: Queue, url_manager: UrlManager, download_repo, level, additional_repos):
+    pool = Pool()
+    logger = get_logger(level, 'DownloadManager')
+    loop(download_url_queue, url_manager, download_repo, additional_repos, logger, pool, True)
 
 
-def check_exists(logger, download_repo, name, size, additional_repos):
-    full_downloaded = False
-    for repo in additional_repos + [download_repo]:
-        full_path = os.path.join(repo, name)
-        logger.debug(f'检查 {name} 是否在 {repo} 中')
-        if os.path.exists(full_path):
-            if full_downloaded:
-                os.remove(full_path)
-            elif full_download(full_path, size):
-                logger.debug(f'{name} 在 {repo} 已完成')
-                full_downloaded = True
-            elif repo == download_repo:
-                logger.info(f'{name} 在 {download_repo} 未完成,继续...')
-            else:
-                os.remove(full_path)
-    return full_downloaded
+def loop(download_url_queue, url_manager, download_repo, additional_repos, logger, pool, FINISHED):
+    if canContinue(download_url_queue, url_manager.download_queue):
+        value = download_url_queue.get()
+        if value == FINISHED:
+            logger.debug('下载线程收到结束信号,已退出')
+        else:
+            url, name, origin_url, size = value
+            pool.apply_async(func=download,
+                             args=(url_manager, download_repo, name, url, origin_url, size, additional_repos))
+            url_manager.notify()
+            loop(download_url_queue, url_manager, download_repo, additional_repos, logger, pool, FINISHED)
+    time.sleep(randint(1, 10))
+    loop(download_url_queue, url_manager, download_repo, additional_repos, logger, pool, FINISHED)
+
+
+def canContinue(download_url_queue, download_queue):
+    return not download_url_queue.empty() or not download_queue.empty()
 
 
 def download(url_manager, download_repo, name, url, text_url, size, additional_repos):
     url_manager.logger.debug(f'{name} 新下载进程')
 
     full_path = os.path.join(download_repo, name)
-    if check_exists(url_manager.logger, download_repo, name, size, additional_repos):
+    if check_exists(url_manager.logger, name, size, iter(additional_repos + [download_repo]), download_repo):
         url_manager.remove_text_url(text_url)
     else:
         url_manager.download_queue.put(text_url)
@@ -64,28 +67,25 @@ def download(url_manager, download_repo, name, url, text_url, size, additional_r
         url_manager.notify()
 
 
-def run(download_url_queue: Queue, url_manager: UrlManager, download_repo, level, additional_repos):
-    pool = Pool()
-    logger = get_logger(level, 'DownloadManager')
-    FINISHED = True
+def check_exists(logger, name, size, repos, download_repo, isDownloaded=False):
+    try:
+        repo = next(repos)
+        full_path = os.path.join(repo, name)
+        logger.debug(f'检查 {name} 是否在 {repo} 中')
+        if os.path.exists(full_path):
+            if isDownloaded:
+                os.remove(full_path)
+            elif full_download(full_path, size):
+                logger.debug(f'{name} 在 {repo} 已完成')
+                isDownloaded = True
+            elif repo == download_repo:
+                logger.info(f'{name} 在 {download_repo} 未完成,继续...')
+            else:
+                os.remove(full_path)
+        return check_exists(logger, name, size, repos, download_repo, isDownloaded)
+    except StopIteration:
+        return isDownloaded
 
-    def download_url_queue_not_empty():
-        return not download_url_queue.empty()
 
-    def pool_length_not_zero():
-        return not url_manager.download_queue.empty()
-
-    done = False
-    while not done:
-        while download_url_queue_not_empty() or pool_length_not_zero():
-            value = download_url_queue.get()
-            if value == FINISHED:
-                done = True
-                logger.debug('下载线程收到结束信号,已退出')
-                break
-            url, name, origin_url, size = value
-            pool.apply_async(func=download,
-                             args=(url_manager, download_repo, name, url, origin_url, size, additional_repos))
-            url_manager.notify()
-            time.sleep(randint(1, 10))
-        time.sleep(randint(1, 10))
+def full_download(path, size):
+    return os.path.getsize(path) / 1024 / 1024 + 1 > size

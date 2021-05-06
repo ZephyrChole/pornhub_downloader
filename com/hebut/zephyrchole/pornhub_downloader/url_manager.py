@@ -4,20 +4,9 @@
 # @software: PyCharm
 # @file: url_manager.py
 # @time: 2021/3/26 15:00
-import logging
 import os
-import time
 
-
-def get_logger(level, name):
-    formatter = logging.Formatter("%(asctime)s - %(filename)s[line:%(lineno)d] - %(levelname)s: %(message)s")
-    fh = logging.FileHandler(f'./log/{time.strftime("%Y-%m-%d", time.localtime())}.log', encoding='utf-8')
-    fh.setLevel(level)
-    fh.setFormatter(formatter)
-    logger = logging.getLogger(name)
-    logger.setLevel(level)
-    logger.addHandler(fh)
-    return logger
+from com.hebut.zephyrchole.pornhub_downloader.public import get_logger
 
 
 class UrlManager:
@@ -33,17 +22,7 @@ class UrlManager:
         self.read_in_urls(url_file_path)
         self.download_url_queue = download_url_queue
 
-    def read_in(self, url_file_path):
-        with open(url_file_path) as file:
-            content = file.readlines()
-            for url in content:
-                url = url.strip()
-                if len(url) > 0:
-                    self.text_urls.append(url)
-                    self.produce_url_queue.put(url)
-
     def read_in_urls(self, url_file_path):
-
         if os.path.exists(self.back_up_path):
             self.read_in(self.back_up_path)
             if os.path.exists(url_file_path):
@@ -55,8 +34,14 @@ class UrlManager:
                 os.remove(self.back_up_path)
         self.logger.info(f'从本地文件: {self.url_file_path} 中读取了 {len(self.text_urls)} 个链接')
 
-    def copy_file(self, src, dst):
-        os.system(f'cp {src} {dst}')
+    def read_in(self, url_file_path):
+        with open(url_file_path) as file:
+            content = file.readlines()
+            for url in content:
+                url = url.strip()
+                if len(url) > 0:
+                    self.text_urls.append(url)
+                    self.produce_url_queue.put(url)
 
     def remove_text_url(self, url):
         self.text_urls.remove(url)
@@ -66,6 +51,9 @@ class UrlManager:
                 file.write(url)
                 file.write('\n')
         os.remove(self.back_up_path)
+
+    def copy_file(self, src, dst):
+        os.system(f'cp {src} {dst}')
 
     def notify(self):
         self.logger.info(
