@@ -5,7 +5,12 @@
 # @file: url_manager.py
 # @time: 2021/3/26 15:00
 import os
+from multiprocessing import Manager, Process
+from os import mkdir
+from os.path import exists
 
+from com.hebut.zephyrchole.pornhub_downloader import url_consumer
+from com.hebut.zephyrchole.pornhub_downloader import url_producer
 from com.hebut.zephyrchole.pornhub_downloader.public import get_logger
 
 
@@ -42,6 +47,34 @@ class UrlManager:
                 if len(url) > 0:
                     self.text_urls.append(url)
                     self.produce_url_queue.put(url)
+
+    def main(self, download_repo, url_file, level, pool_capacity=5, additional_repos=()):
+        for repo in additional_repos:
+            if not exists(repo):
+                mkdir(repo)
+        if not exists(download_repo):
+            mkdir(download_repo)
+
+        # global variables
+        manager = Manager()
+        download_url_queue = manager.Queue()
+        download_queue = manager.Queue()
+        text_urls = manager.list()
+        produce_url_queue = manager.Queue()
+
+        url_manager = UrlManager(url_file, pool_capacity, level, download_url_queue, produce_url_queue,
+                                 download_queue,
+                                 text_urls)
+
+        url_converter = Process(target=url_producer.run,
+                                args=(download_url_queue, url_manager, download_repo, level))
+        downloader = Process(target=url_consumer.run,
+                             args=(download_url_queue, url_manager, download_repo, level, additional_repos))
+        url_converter.start()
+        downloader.start()
+        url_converter.join()
+        downloader.join()
+        print("已完成")
 
     def remove_text_url(self, url):
         self.text_urls.remove(url)

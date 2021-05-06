@@ -2,16 +2,10 @@
 
 # Author:Jiawei Feng
 # @software: PyCharm
-# @file: pornhub_downloader.py
+# @file: main.py
 # @time: 2021/3/26 15:50
 import logging
 
-import com.hebut.zephyrchole.pornhub_downloader.pornhub_downloader as pd
+from com.hebut.zephyrchole.pornhub_downloader.public import main
 
-
-def main():
-    pd.main('/media/pi/sda1/media/porn/unsorted', './input.txt', logging.DEBUG, ['/media/pi/sda1/media/porn/repo'])
-
-
-if __name__ == '__main__':
-    main()
+main('/media/pi/sda1/media/porn/unsorted', './input.txt', logging.DEBUG, 5, ['/media/pi/sda1/media/porn/repo'])
