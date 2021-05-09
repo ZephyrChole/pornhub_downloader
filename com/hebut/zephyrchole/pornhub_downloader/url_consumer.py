@@ -3,9 +3,7 @@
 # Author:Jiawei Feng
 # @software: PyCharm
 # @file: url_consumer.py
-# @time: 2021/3/26 15:00 
-
-
+# @time: 2021/3/26 15:00
 import os
 import time
 from multiprocessing import Pool
@@ -13,7 +11,8 @@ from queue import Queue
 from random import randint
 from subprocess import Popen
 
-from com.hebut.zephyrchole.pornhub_downloader.url_manager import UrlManager, get_logger
+from com.hebut.zephyrchole.pornhub_downloader.public import get_logger
+from com.hebut.zephyrchole.pornhub_downloader.url_manager import UrlManager
 
 
 def run(download_url_queue: Queue, url_manager: UrlManager, download_repo, level, additional_repos):

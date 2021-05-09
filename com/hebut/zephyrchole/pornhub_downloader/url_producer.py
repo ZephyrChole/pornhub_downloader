@@ -15,8 +15,8 @@ from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.support.wait import WebDriverWait
 
-from com.hebut.zephyrchole.pornhub_downloader.public import get_logger
 from com.hebut.zephyrchole.pornhub_downloader.url_manager import UrlManager
+from com.hebut.zephyrchole.pornhub_downloader.public import get_logger
 
 
 def run(download_url_queue: Queue, url_manager: UrlManager, download_repo, level):
