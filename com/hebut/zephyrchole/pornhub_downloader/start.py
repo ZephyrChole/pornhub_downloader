@@ -3,8 +3,6 @@
 # @software: PyCharm
 # @file: public.py
 # @time: 2021/5/6 17:48
-import logging
-import time
 from multiprocessing import Manager, Process
 from os import mkdir
 from os.path import exists
@@ -38,4 +36,3 @@ def main(download_repo, url_file, level, pool_capacity=5, additional_repos=()):
     downloader.start()
     url_converter.join()
     downloader.join()
-    print("已完成")
