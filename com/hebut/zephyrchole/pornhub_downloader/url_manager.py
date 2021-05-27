@@ -5,6 +5,7 @@
 # @file: url_manager.py
 # @time: 2021/3/26 15:00
 import os
+import re
 from com.hebut.zephyrchole.pornhub_downloader.public import get_logger
 
 
@@ -38,7 +39,8 @@ class UrlManager:
             content = file.readlines()
             for url in content:
                 url = url.strip()
-                if len(url) > 0:
+                if len(url) > 0 and re.match(r'https?://(cn|www)\.pornhub.com/view_video\.php\?viewkey=[a-zA-Z0-9]+',
+                                             url):
                     self.text_urls.append(url)
                     self.produce_url_queue.put(url)
 

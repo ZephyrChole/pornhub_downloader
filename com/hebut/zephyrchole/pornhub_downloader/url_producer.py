@@ -32,10 +32,11 @@ def loop(download_url_queue: Queue, url_manager: UrlManager, download_repo, logg
             convert(logger, browser, download_repo, url_manager, download_url_queue)
         else:
             time.sleep(randint(1, 10))
-        loop(download_url_queue, url_manager, download_repo, logger, browser)
+        return loop(download_url_queue, url_manager, download_repo, logger, browser)
     else:
         browser.quit()
         download_url_queue.put(True)
+        return True
 
 
 def isDone(text_urls, download_queue):

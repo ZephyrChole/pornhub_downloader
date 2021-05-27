@@ -26,14 +26,15 @@ def loop(download_url_queue, url_manager, download_repo, additional_repos, logge
         value = download_url_queue.get()
         if value == FINISHED:
             logger.debug('下载线程收到结束信号,已退出')
+            return True
         else:
             url, name, origin_url, size = value
             pool.apply_async(func=download,
                              args=(url_manager, download_repo, name, url, origin_url, size, additional_repos))
             url_manager.notify()
-            loop(download_url_queue, url_manager, download_repo, additional_repos, logger, pool, FINISHED)
-    time.sleep(randint(1, 10))
-    loop(download_url_queue, url_manager, download_repo, additional_repos, logger, pool, FINISHED)
+    else:
+        time.sleep(randint(1, 10))
+    return loop(download_url_queue, url_manager, download_repo, additional_repos, logger, pool, FINISHED)
 
 
 def canContinue(download_url_queue, download_queue):
