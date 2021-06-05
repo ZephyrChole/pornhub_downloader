@@ -47,16 +47,16 @@ def download(url_manager, download_repo, name, url, text_url, size, additional_r
 
     full_path = os.path.join(download_repo, name)
     short_name = name[:6] if len(name) > 6 else name
-    if check_exists(logger, name, size, additional_repos + [download_repo], download_repo, short_name):
+    if check_exists(logger, name, short_name, size, additional_repos + [download_repo], download_repo):
         url_manager.remove_text_url(text_url)
     else:
         url_manager.download_queue.put(text_url)
         logger.info(f'开始新下载: {name}')
         logger.debug(f'\nurl: {url}\norigin_url: {text_url}')
         url_manager.notify()
-        exitcode = Popen(
-            f'wget --user-agent="Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101 Firefox/60.0" --no-check-certificate -c -q -O "{full_path}" "{url}"',
-            shell=True).wait(60*60)
+        parameters = ('wget', '--user-agent="Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101 Firefox/60.0"',
+                      '--no-check-certificate', '-c', '-q', '-0', f'"{full_path}"', f'"{url}')
+        exitcode = Popen(parameters, shell=True).wait(60 * 60)
         logger.debug(f'返回码: {exitcode} <-- {short_name}')
 
         if exitcode == 0:
@@ -69,7 +69,7 @@ def download(url_manager, download_repo, name, url, text_url, size, additional_r
         url_manager.notify()
 
 
-def check_exists(logger, name, size, repos, download_repo, short_name):
+def check_exists(logger, name, short_name, size, repos, download_repo):
     isDownloaded = False
     for repo in repos:
         full_path = os.path.join(repo, name)
