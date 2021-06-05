@@ -84,7 +84,7 @@ def check_exists(logger, name, size, repos, download_repo, short_name, isDownloa
                 logger.info(f'未完成下载: {short_name} --> {download_repo}')
             else:
                 os.remove(full_path)
-        return check_exists(logger, name, size, repos, download_repo, isDownloaded)
+        return check_exists(logger, name, size, repos, download_repo, short_name, isDownloaded)
     except StopIteration:
         return isDownloaded
 
