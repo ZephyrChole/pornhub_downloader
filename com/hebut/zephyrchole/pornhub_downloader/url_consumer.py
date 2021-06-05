@@ -18,23 +18,20 @@ from com.hebut.zephyrchole.pornhub_downloader.url_manager import UrlManager
 def run(download_url_queue: Queue, url_manager: UrlManager, download_repo, level, additional_repos):
     pool = Pool()
     logger = get_logger(level, 'DownloadManager')
-    loop(download_url_queue, url_manager, download_repo, additional_repos, logger, pool, True)
-
-
-def loop(download_url_queue, url_manager, download_repo, additional_repos, logger, pool, FINISHED):
-    if canContinue(download_url_queue, url_manager.download_queue):
-        value = download_url_queue.get()
-        if value == FINISHED:
-            logger.info('下载线程收到结束信号,已退出')
-            return True
+    FINISHED = True
+    while True:
+        if canContinue(download_url_queue, url_manager.download_queue):
+            value = download_url_queue.get()
+            if value == FINISHED:
+                break
+            else:
+                url, name, origin_url, size = value
+                pool.apply_async(func=download,
+                                 args=(url_manager, download_repo, name, url, origin_url, size, additional_repos))
+                url_manager.notify()
         else:
-            url, name, origin_url, size = value
-            pool.apply_async(func=download,
-                             args=(url_manager, download_repo, name, url, origin_url, size, additional_repos))
-            url_manager.notify()
-    else:
-        time.sleep(randint(1, 10))
-    return loop(download_url_queue, url_manager, download_repo, additional_repos, logger, pool, FINISHED)
+            time.sleep(randint(1, 10))
+    logger.info('下载线程收到结束信号,已退出')
 
 
 def canContinue(download_url_queue, download_queue):
