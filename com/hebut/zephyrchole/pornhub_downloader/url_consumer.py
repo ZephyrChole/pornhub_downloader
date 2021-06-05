@@ -42,44 +42,46 @@ def canContinue(download_url_queue, download_queue):
 
 
 def download(url_manager, download_repo, name, url, text_url, size, additional_repos):
-    url_manager.logger.debug(f'{name} 新下载进程')
+    url_manager.logger.debug(f'新下载进程: {name}')
 
     full_path = os.path.join(download_repo, name)
-    if check_exists(url_manager.logger, name, size, iter(additional_repos + [download_repo]), download_repo):
+    short_name = name[:6] if len(name) > 6 else name
+    if check_exists(url_manager.logger, name, size, iter(additional_repos + [download_repo]), download_repo,
+                    short_name):
         url_manager.remove_text_url(text_url)
     else:
         url_manager.download_queue.put(text_url)
-        url_manager.logger.info(f'开始新下载: {name}')
-        url_manager.logger.debug(f'{name} url:{url} \norigin_url:{text_url}')
+        url_manager.logger.info(f'开始新下载')
+        url_manager.logger.debug(f'name: {name}\nurl: {url}\norigin_url: {text_url}')
         url_manager.notify()
         exitcode = Popen(
             f'wget --user-agent="Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101 Firefox/60.0" --no-check-certificate -c -q -O "{full_path}" "{url}"',
             shell=True).wait()
-        url_manager.logger.debug(f'返回码: {name} {exitcode}')
+        url_manager.logger.debug(f'返回码: {exitcode} <-- {short_name}')
 
         if exitcode == 0:
             url_manager.remove_text_url(text_url)
-            url_manager.logger.info(f'下载成功 {name}')
+            url_manager.logger.info(f'下载成功: {short_name}')
         else:
             url_manager.produce_url_queue.put(text_url)
-            url_manager.logger.info(f'下载失败 {name}')
+            url_manager.logger.info(f'下载失败: {short_name}')
         url_manager.download_queue.get()
         url_manager.notify()
 
 
-def check_exists(logger, name, size, repos, download_repo, isDownloaded=False):
+def check_exists(logger, name, size, repos, download_repo, short_name, isDownloaded=False):
     try:
         repo = next(repos)
         full_path = os.path.join(repo, name)
-        logger.debug(f'检查 {name} 是否在 {repo} 中')
+        logger.debug(f'检查库存\nname: {short_name}\nrepo: {repo}')
         if os.path.exists(full_path):
             if isDownloaded:
                 os.remove(full_path)
             elif full_download(full_path, size):
-                logger.debug(f'{name} 在 {repo} 已完成')
+                logger.debug(f'已完成下载: {short_name} --> {repo}')
                 isDownloaded = True
             elif repo == download_repo:
-                logger.info(f'{name} 在 {download_repo} 未完成,继续...')
+                logger.info(f'未完成下载: {short_name} --> {download_repo}')
             else:
                 os.remove(full_path)
         return check_exists(logger, name, size, repos, download_repo, isDownloaded)
