@@ -52,7 +52,7 @@ def download(url_manager, download_repo, name, url, text_url, size, additional_r
     else:
         url_manager.download_queue.put(text_url)
         url_manager.logger.info(f'开始新下载: {name}')
-        url_manager.logger.debug(f'url: {url}\norigin_url: {text_url}')
+        url_manager.logger.debug(f'\nurl: {url}\norigin_url: {text_url}')
         url_manager.notify()
         exitcode = Popen(
             f'wget --user-agent="Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101 Firefox/60.0" --no-check-certificate -c -q -O "{full_path}" "{url}"',
@@ -73,7 +73,7 @@ def check_exists(logger, name, size, repos, download_repo, short_name, isDownloa
     try:
         repo = next(repos)
         full_path = os.path.join(repo, name)
-        logger.info(f'检查库存\nname: {short_name}\nrepo: {repo}')
+        logger.info(f'\n检查库存\nname: {short_name}\nrepo: {repo}')
         if os.path.exists(full_path):
             if isDownloaded:
                 os.remove(full_path)
