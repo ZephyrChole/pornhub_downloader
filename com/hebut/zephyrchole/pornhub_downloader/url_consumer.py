@@ -53,17 +53,22 @@ def download(url_manager, download_repo, name, url, text_url, size, additional_r
         url_manager.notify()
         parameters = ('wget', '--user-agent="Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101 Firefox/60.0"',
                       '--no-check-certificate', '-c', '-q', '-0', f'"{full_path}"', f'"{url}')
-        exitcode = Popen(parameters, shell=True).wait(60 * 60)
-        logger.debug(f'返回码: {exitcode} <-- {short_name}')
+        try:
+            exitcode = Popen(parameters, shell=True).wait(60 * 60)
+            logger.debug(f'返回码: {exitcode} <-- {short_name}')
 
-        if exitcode == 0:
-            url_manager.remove_text_url(text_url)
-            logger.info(f'下载成功: {short_name}')
-        else:
-            url_manager.produce_url_queue.put(text_url)
-            logger.info(f'下载失败: {short_name}')
-        url_manager.download_queue.get()
+            if exitcode == 0:
+                url_manager.remove_text_url(text_url)
+                logger.info(f'下载成功: {short_name}')
+                return True
+            else:
+                logger.info(f'下载失败: {short_name}')
+            url_manager.download_queue.get()
+        except Exception as e:
+            logger.warning(str(e))
+        url_manager.produce_url_queue.put(text_url)
         url_manager.notify()
+        return False
 
 
 def check_exists(logger, name, short_name, size, repos, download_repo):
