@@ -68,7 +68,7 @@ def convert(logger, browser, download_repo, url_manager, download_url_queue, att
             browser.quit()
             convert(logger, get_browser(), download_repo, url_manager, download_url_queue, attempt + 1)
     else:
-        logger.info('重试3次,已跳过')
+        logger.warning('重试3次,已跳过')
         url_manager.notify()
 
 
