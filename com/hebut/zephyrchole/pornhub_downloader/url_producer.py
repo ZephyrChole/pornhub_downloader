@@ -103,7 +103,7 @@ def get_url_and_name(browser, logger, repo, origin_url):
 
     browser.find_element_by_css_selector('tr:last-child td a.getSize1').click()
     size = get_size(browser)
-    logger.debug(f'converted info got.name:{name} url:{download_url} size:{size}')
+    logger.debug(f'converted info got.name: {name} url: {download_url} size: {size}M')
     return download_url, name, origin_url, size
 
 
