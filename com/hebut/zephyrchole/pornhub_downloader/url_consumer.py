@@ -73,7 +73,7 @@ def check_exists(logger, name, size, repos, download_repo, short_name, isDownloa
     try:
         repo = next(repos)
         full_path = os.path.join(repo, name)
-        logger.info(f'\n检查库存\nname: {short_name}\nrepo: {repo}')
+        logger.info(f'检查库存: {short_name} --> {repo}')
         if os.path.exists(full_path):
             if isDownloaded:
                 os.remove(full_path)
