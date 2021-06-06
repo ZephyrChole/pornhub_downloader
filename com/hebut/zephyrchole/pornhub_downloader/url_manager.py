@@ -6,6 +6,7 @@
 # @time: 2021/3/26 15:00
 import os
 import re
+from shutil import copyfile
 from com.hebut.zephyrchole.pornhub_downloader.public import get_logger
 
 
@@ -32,7 +33,7 @@ class UrlManager:
             self.read_in(url_file_path)
             if os.path.exists(self.back_up_path):
                 os.remove(self.back_up_path)
-        self.logger.info(f'从本地文件: {self.url_file_path} 中读取了 {len(self.text_urls)} 个链接')
+        self.logger.info(f'read in {len(self.text_urls)} url(s) <-- {self.url_file_path}')
 
     def read_in(self, url_file_path):
         with open(url_file_path) as file:
@@ -46,16 +47,13 @@ class UrlManager:
 
     def remove_text_url(self, url):
         self.text_urls.remove(url)
-        self.copy_file(self.url_file_path, self.back_up_path)
+        copyfile(self.url_file_path, self.back_up_path)
         with open(self.url_file_path, 'w') as file:
             for url in self.text_urls:
                 file.write(url)
                 file.write('\n')
         os.remove(self.back_up_path)
 
-    def copy_file(self, src, dst):
-        os.system(f'cp {src} {dst}')
-
-    def notify(self):
-        self.logger.info(
-            f'本地链接:{len(self.text_urls)} 内存原链接:{self.produce_url_queue.qsize()} 下载队列:{self.download_queue.qsize()} 下载链接缓存区:{self.download_url_queue.qsize()}')
+    def notify(self,logger):
+        logger.info(
+            f'text:{len(self.text_urls)} raw:{self.produce_url_queue.qsize()} cache:{self.download_url_queue.qsize()} queue:{self.download_queue.qsize()}')

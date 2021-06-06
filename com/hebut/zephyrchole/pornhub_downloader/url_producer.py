@@ -20,23 +20,33 @@ from com.hebut.zephyrchole.pornhub_downloader.public import get_logger
 
 
 def run(download_url_queue: Queue, url_manager: UrlManager, download_repo, level, hasConsole, hasFile):
-    browser = get_browser()
+    loop(download_url_queue, url_manager, download_repo, level, hasConsole, hasFile)
+
+
+def loop(download_url_queue: Queue, url_manager: UrlManager, download_repo, level, hasConsole, hasFile):
     logger = get_logger(level, 'UrlConverter', hasConsole, hasFile)
-    loop(download_url_queue, url_manager, download_repo, logger, browser)
-
-
-def loop(download_url_queue: Queue, url_manager: UrlManager, download_repo, logger, browser):
-    if not isDone(url_manager.text_urls, url_manager.download_queue):
+    browser = get_browser()
+    while not isDone(url_manager.text_urls, url_manager.download_queue):
         if canContinue(url_manager.produce_url_queue, url_manager.download_queue, download_url_queue,
                        url_manager.pool_capacity):
-            convert(logger, browser, download_repo, url_manager, download_url_queue)
+            attempt = 0
+            while attempt < 3:
+                attempt += 1
+                url = url_manager.produce_url_queue.get()
+                try:
+                    download_url_queue.put(get_video_url_and_name(browser, logger, download_repo, url))
+                except Exception as e:
+                    logger.warning(str(e))
+                    logger.warning(f'retry {attempt}')
+                    browser.quit()
+            if attempt == 3:
+                logger.warning('retry 3 times,skip')
+                url_manager.notify(logger)
         else:
             time.sleep(randint(1, 10))
-        return loop(download_url_queue, url_manager, download_repo, logger, browser)
-    else:
-        browser.quit()
-        download_url_queue.put(True)
-        return True
+    browser.quit()
+    download_url_queue.put(True)
+    return True
 
 
 def isDone(text_urls, download_queue):
@@ -55,21 +65,6 @@ def get_browser():
     chrome_options = Options()
     chrome_options.add_argument('--headless')
     return webdriver.Chrome(chrome_options=chrome_options)
-
-
-def convert(logger, browser, download_repo, url_manager, download_url_queue, attempt=0):
-    if attempt <= 3:
-        url = url_manager.produce_url_queue.get()
-        try:
-            download_url_queue.put(get_video_url_and_name(browser, logger, download_repo, url))
-        except Exception as e:
-            logger.warning(str(e))
-            logger.warning(f'重试{attempt}次')
-            browser.quit()
-            convert(logger, get_browser(), download_repo, url_manager, download_url_queue, attempt + 1)
-    else:
-        logger.warning('重试3次,已跳过')
-        url_manager.notify()
 
 
 def get_video_url_and_name(browser, logger, download_repo, url):

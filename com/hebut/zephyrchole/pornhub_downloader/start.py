@@ -5,7 +5,7 @@
 # @time: 2021/5/6 17:48
 from multiprocessing import Manager, Process
 from os import mkdir
-from os.path import exists
+from os.path import exists, abspath
 
 from com.hebut.zephyrchole.pornhub_downloader import url_consumer
 from com.hebut.zephyrchole.pornhub_downloader import url_producer

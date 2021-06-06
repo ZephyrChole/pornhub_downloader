@@ -4,6 +4,7 @@
 # @software: PyCharm
 # @file: 1.py
 # @time: 2021/5/9 19:22
+import sys
 import time
 import logging
 
@@ -13,7 +14,7 @@ def get_logger(level, name, hasConsole, hasFile):
     logger = logging.getLogger(name)
     logger.setLevel(level)
     if hasConsole:
-        ch = logging.StreamHandler()
+        ch = logging.StreamHandler(sys.stdout)
         ch.setLevel(level)
         ch.setFormatter(formatter)
         logger.addHandler(ch)
