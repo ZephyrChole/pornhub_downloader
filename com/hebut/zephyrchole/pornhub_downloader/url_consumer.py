@@ -46,7 +46,6 @@ def download(url_manager, download_repo, name, url, text_url, size, additional_r
 
     full_path = os.path.join(download_repo, name)
     short_name = name[:6] if len(name) > 6 else name
-    open('ada.txt', 'w').close()
     if check_exists(logger, name, short_name, size, additional_repos + [download_repo], download_repo):
         url_manager.remove_text_url(text_url)
     else:
