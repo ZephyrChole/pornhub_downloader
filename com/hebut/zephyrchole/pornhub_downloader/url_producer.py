@@ -64,6 +64,7 @@ def isFullDownloadQueue(download_queue, download_url_queue, pool_capacity):
 def get_browser():
     chrome_options = Options()
     chrome_options.add_argument('--headless')
+    chrome_options.add_experimental_option('excludeSwitches', ['enable-logging'])
     return webdriver.Chrome(chrome_options=chrome_options)
 
 
