@@ -11,14 +11,14 @@ from com.hebut.zephyrchole.pornhub_downloader.public import get_logger
 
 class UrlManager:
     def __init__(self, url_file_path, pool_capacity, level, download_url_queue, produce_url_queue, download_queue,
-                 text_urls,hasConsole,hasFile):
+                 text_urls, hasConsole, hasFile):
         self.url_file_path = url_file_path
         self.back_up_path = f'{url_file_path}.bak'
         self.pool_capacity = pool_capacity
         self.download_queue = download_queue
         self.text_urls = text_urls
         self.produce_url_queue = produce_url_queue
-        self.logger = get_logger(level, 'UrlManager',hasConsole,hasFile)
+        self.logger = get_logger(level, 'UrlManager', hasConsole, hasFile)
         self.read_in_urls(url_file_path)
         self.download_url_queue = download_url_queue
 

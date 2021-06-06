@@ -32,8 +32,8 @@ def main(download_repo, url_file, level, pool_capacity=5, additional_repos=(), h
     url_converter = Process(target=url_producer.run,
                             args=(download_url_queue, url_manager, download_repo, level, hasConsole, hasFile))
     downloader = Process(target=url_consumer.run,
-                         args=(
-                         download_url_queue, url_manager, download_repo, level, additional_repos, hasConsole, hasFile))
+                         args=(download_url_queue, url_manager, download_repo, level, additional_repos, hasConsole,
+                               hasFile))
     url_converter.start()
     downloader.start()
     url_converter.join()

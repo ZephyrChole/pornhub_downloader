@@ -8,5 +8,5 @@ import logging
 from com.hebut.zephyrchole.pornhub_downloader.start import main
 
 if __name__ == '__main__':
-    main(download_repo='./unsorted', url_file='./input.txt', level=logging.DEBUG, pool_capacity=5, additional_repos=(),
-         hasConsole=True, hasFile=False)
+    main(download_repo='/media/pi/sda1/media/porn/unsorted', url_file='./input.txt', level=logging.DEBUG,
+         pool_capacity=5, additional_repos=['/media/pi/sda1/media/porn/repo'], hasConsole=True, hasFile=False)

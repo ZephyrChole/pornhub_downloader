@@ -15,9 +15,10 @@ from com.hebut.zephyrchole.pornhub_downloader.public import get_logger
 from com.hebut.zephyrchole.pornhub_downloader.url_manager import UrlManager
 
 
-def run(download_url_queue: Queue, url_manager: UrlManager, download_repo, level, additional_repos,hasConsole,hasFile):
+def run(download_url_queue: Queue, url_manager: UrlManager, download_repo, level, additional_repos, hasConsole,
+        hasFile):
     pool = Pool()
-    logger = get_logger(level, 'DownloadManager',hasConsole,hasFile)
+    logger = get_logger(level, 'DownloadManager', hasConsole, hasFile)
     logger.info('download manager start')
     FINISHED = True
     while True:
@@ -45,6 +46,7 @@ def download(url_manager, download_repo, name, url, text_url, size, additional_r
 
     full_path = os.path.join(download_repo, name)
     short_name = name[:6] if len(name) > 6 else name
+    open('ada.txt', 'w').close()
     if check_exists(logger, name, short_name, size, additional_repos + [download_repo], download_repo):
         url_manager.remove_text_url(text_url)
     else:
@@ -54,7 +56,6 @@ def download(url_manager, download_repo, name, url, text_url, size, additional_r
         url_manager.notify()
         parameters = ('wget', '--user-agent="Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101 Firefox/60.0"',
                       '--no-check-certificate', '-c', '-q', '-0', f'"{full_path}"', f'"{url}')
-        print(parameters)
         try:
             exitcode = Popen(parameters, shell=True).wait(60 * 60)
             logger.debug(f'返回码: {exitcode} <-- {short_name}')
