@@ -19,9 +19,9 @@ from com.hebut.zephyrchole.pornhub_downloader.url_manager import UrlManager
 from com.hebut.zephyrchole.pornhub_downloader.public import get_logger
 
 
-def run(download_url_queue: Queue, url_manager: UrlManager, download_repo, level):
+def run(download_url_queue: Queue, url_manager: UrlManager, download_repo, level,hasConsole,hasFile):
     browser = get_browser()
-    logger = get_logger(level, 'UrlConverter')
+    logger = get_logger(level, 'UrlConverter',hasConsole,hasFile)
     loop(download_url_queue, url_manager, download_repo, logger, browser)
 
 

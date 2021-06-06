@@ -12,7 +12,7 @@ from com.hebut.zephyrchole.pornhub_downloader import url_producer
 from com.hebut.zephyrchole.pornhub_downloader.url_manager import UrlManager
 
 
-def main(download_repo, url_file, level, pool_capacity=5, additional_repos=()):
+def main(download_repo, url_file, level, pool_capacity=5, additional_repos=(), hasConsole=True, hasFile=False):
     for repo in additional_repos:
         if not exists(repo):
             mkdir(repo)
@@ -27,11 +27,13 @@ def main(download_repo, url_file, level, pool_capacity=5, additional_repos=()):
     produce_url_queue = manager.Queue()
 
     url_manager = UrlManager(url_file, pool_capacity, level, download_url_queue, produce_url_queue, download_queue,
-                             text_urls)
+                             text_urls, hasConsole, hasFile)
 
-    url_converter = Process(target=url_producer.run, args=(download_url_queue, url_manager, download_repo, level))
+    url_converter = Process(target=url_producer.run,
+                            args=(download_url_queue, url_manager, download_repo, level, hasConsole, hasFile))
     downloader = Process(target=url_consumer.run,
-                         args=(download_url_queue, url_manager, download_repo, level, additional_repos))
+                         args=(
+                         download_url_queue, url_manager, download_repo, level, additional_repos, hasConsole, hasFile))
     url_converter.start()
     downloader.start()
     url_converter.join()
