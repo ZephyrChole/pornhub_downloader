@@ -128,4 +128,4 @@ def get_size(browser, attempt=0):
     elif attempt <= 100:
         return get_size(browser, attempt + 1)
     else:
-        return 0
+        return 10*6
