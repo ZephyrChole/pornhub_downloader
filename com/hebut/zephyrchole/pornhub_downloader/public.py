@@ -9,10 +9,22 @@ import time
 import logging
 
 
-def get_logger(level, name, hasConsole, hasFile):
-    formatter = logging.Formatter("%(asctime)s - %(filename)s - %(levelname)s: %(message)s")
+class LogSetting:
+    def __init__(self, level: logging.INFO, hasConsole, hasFile):
+        self.level = level
+        self.hasConsole = hasConsole
+        self.hasFile = hasFile
+
+
+def get_logger(name, log_setting: LogSetting):
+    level = log_setting.level
+    hasConsole = log_setting.hasConsole
+    hasFile = log_setting.hasFile
+
+    formatter = logging.Formatter("%(asctime)s %(filename)s %(levelname)s: %(message)s")
     logger = logging.getLogger(name)
     logger.setLevel(level)
+
     if hasConsole:
         ch = logging.StreamHandler(sys.stdout)
         ch.setLevel(level)

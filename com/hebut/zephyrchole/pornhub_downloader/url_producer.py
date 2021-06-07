@@ -8,44 +8,49 @@
 import os
 import re
 import time
-from queue import Queue
 from random import randint
 
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.support.wait import WebDriverWait
 
-from com.hebut.zephyrchole.pornhub_downloader.url_manager import UrlManager
 from com.hebut.zephyrchole.pornhub_downloader.public import get_logger
 
 
-def run(download_url_queue: Queue, url_manager: UrlManager, download_repo, level, hasConsole, hasFile):
-    loop(download_url_queue, url_manager, download_repo, level, hasConsole, hasFile)
+class DownloadInfo:
+    def __init__(self, download_url, name, origin_url, size):
+        self.download_url = download_url
+        self.name = name
+        self.origin_url = origin_url
+        self.size = size
 
 
-def loop(download_url_queue: Queue, url_manager: UrlManager, download_repo, level, hasConsole, hasFile):
-    logger = get_logger(level, 'UrlConverter', hasConsole, hasFile)
+def run(url_manager, log_setting, pool_capacity, text_urlL, raw_urlQ, converting_urlQ, converted_urlQ, downloadQ,
+        download_repo):
+    logger = get_logger('UrlConverter', log_setting)
     browser = get_browser()
-    while not isDone(url_manager.text_urls, url_manager.download_queue):
-        if canContinue(url_manager.produce_url_queue, url_manager.download_queue, download_url_queue,
-                       url_manager.pool_capacity):
+    while not isDone(text_urlL, downloadQ):
+        if canContinue(raw_urlQ, downloadQ, converted_urlQ, pool_capacity):
             attempt = 0
+            url = raw_urlQ.get()
+            converting_urlQ.put(url)
             while attempt < 3:
                 attempt += 1
-                url = url_manager.produce_url_queue.get()
                 try:
-                    download_url_queue.put(get_video_url_and_name(browser, logger, download_repo, url))
+                    converted_urlQ.put(get_video_url_and_name(browser, logger, download_repo, url))
+                    break
                 except Exception as e:
                     logger.warning(str(e))
                     logger.warning(f'retry {attempt}')
                     browser.quit()
+            converting_urlQ.get()
             if attempt == 3:
                 logger.warning('retry 3 times,skip')
                 url_manager.notify(logger)
         else:
             time.sleep(randint(1, 10))
     browser.quit()
-    download_url_queue.put(True)
+    converted_urlQ.put(True)
     return True
 
 
@@ -100,7 +105,7 @@ def get_url_and_name(browser, logger, repo, origin_url):
     browser.find_element_by_css_selector('tr:last-child td a.getSize1').click()
     size = get_size(browser)
     logger.debug(f'converted info got.name: {name} url: {download_url} size: {size}M')
-    return download_url, name, origin_url, size
+    return DownloadInfo(download_url, name, origin_url, size)
 
 
 def get_noname(repo, count=0):

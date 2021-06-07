@@ -7,30 +7,26 @@
 import os
 import time
 from multiprocessing import Pool
-from queue import Queue
 from random import randint
 from subprocess import Popen
 
 from com.hebut.zephyrchole.pornhub_downloader.public import get_logger
-from com.hebut.zephyrchole.pornhub_downloader.url_manager import UrlManager
+from com.hebut.zephyrchole.pornhub_downloader.url_producer import DownloadInfo
 
 
-def run(download_url_queue: Queue, url_manager: UrlManager, download_repo, level, additional_repos, hasConsole,
-        hasFile):
+def run(url_manager, log_setting, raw_urlQ, converted_urlQ, downloadQ, download_repo, additional_repos):
     pool = Pool()
-    logger = get_logger(level, 'DownloadManager', hasConsole, hasFile)
-    logger.info('download manager start')
+    logger = get_logger('DownloadManager', log_setting)
     FINISHED = True
     while True:
-        if canContinue(download_url_queue, url_manager.download_queue):
-            value = download_url_queue.get()
+        if canContinue(converted_urlQ, downloadQ):
+            value = converted_urlQ.get()
             if value == FINISHED:
                 break
             else:
-                url, name, origin_url, size = value
                 pool.apply_async(func=download,
-                                 args=(url_manager, download_repo, name, url, origin_url, size, additional_repos, level,
-                                       hasConsole, hasFile))
+                                 args=(url_manager, log_setting, raw_urlQ, downloadQ, download_repo, value,
+                                       additional_repos))
                 url_manager.notify(logger)
         else:
             time.sleep(randint(1, 10))
@@ -41,34 +37,41 @@ def canContinue(download_url_queue, download_queue):
     return not download_url_queue.empty() or not download_queue.empty()
 
 
-def download(url_manager, download_repo, name, url, text_url, size, additional_repos, level, hasConsole, hasFile):
+def download(url_manager, log_setting, raw_urlQ, downloadQ, download_repo, info: DownloadInfo, additional_repos):
+    download_url = info.download_url
+    name = info.name
+    origin_url = info.origin_url
+    size = info.size
+
     full_path = os.path.join(download_repo, name)
     short_name = name[:6] if len(name) > 6 else name
-    logger = get_logger(level, short_name, hasConsole, hasFile)
+    logger = get_logger(short_name, log_setting)
+
     logger.info(f'new download info: {name}')
     if check_exists(logger, name, short_name, size, additional_repos + [download_repo], download_repo):
-        url_manager.remove_text_url(text_url)
+        url_manager.remove_text_url(origin_url)
     else:
-        url_manager.download_queue.put(text_url)
+        downloadQ.put(origin_url)
         logger.info(f'start download: {name}')
-        logger.debug(f'\nurl: {url}\norigin_url: {text_url}')
+        logger.debug(f'\nurl: {download_url}\norigin_url: {origin_url}')
         url_manager.notify(logger)
         parameters = ('wget', '--user-agent="Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101 Firefox/60.0"',
-                      '--no-check-certificate', '-c', '-q', '-O', f'"{full_path}"', f'"{url}"')
+                      '--no-check-certificate', '-c', '-q', '-O', f'"{full_path}"', f'"{download_url}"')
         try:
             exitcode = Popen(' '.join(parameters), shell=True).wait(60 * 60)
             logger.debug(f'exitcode: {exitcode} <-- {short_name}')
 
             if exitcode == 0:
-                url_manager.remove_text_url(text_url)
+                url_manager.remove_text_url(origin_url)
                 logger.info(f'download succeed: {short_name}')
                 return True
             else:
                 logger.info(f'download fail: {short_name}')
-            url_manager.download_queue.get()
+                raw_urlQ.put(origin_url)
+            downloadQ.get()
         except Exception as e:
             logger.warning(str(e))
-        url_manager.produce_url_queue.put(text_url)
+            raw_urlQ.put(origin_url)
         url_manager.notify(logger)
         return False
 
