@@ -14,7 +14,7 @@ from com.hebut.zephyrchole.pornhub_downloader.public import get_logger
 from com.hebut.zephyrchole.pornhub_downloader.url_producer import DownloadInfo
 
 
-def run(url_manager, log_setting, raw_urlQ, converted_urlQ, downloadQ, download_repo, additional_repos):
+def run(url_manager, log_setting, raw_urlQ, converted_urlQ, downloadQ, finishedQ, download_repo, additional_repos):
     pool = Pool()
     logger = get_logger('DownloadManager', log_setting)
     FINISHED = True
@@ -25,7 +25,7 @@ def run(url_manager, log_setting, raw_urlQ, converted_urlQ, downloadQ, download_
                 break
             else:
                 pool.apply_async(func=download,
-                                 args=(url_manager, log_setting, raw_urlQ, downloadQ, download_repo, value,
+                                 args=(url_manager, log_setting, raw_urlQ, downloadQ, finishedQ, download_repo, value,
                                        additional_repos))
                 url_manager.notify(logger)
         else:
@@ -37,11 +37,9 @@ def canContinue(download_url_queue, download_queue):
     return not download_url_queue.empty() or not download_queue.empty()
 
 
-def download(url_manager, log_setting, raw_urlQ, downloadQ, download_repo, info: DownloadInfo, additional_repos):
-    download_url = info.download_url
-    name = info.name
-    origin_url = info.origin_url
-    size = info.size
+def download(url_manager, log_setting, raw_urlQ, downloadQ, finishedQ, download_repo, info: DownloadInfo,
+             additional_repos):
+    download_url, name, origin_url, size = info.download_url, info.name, info.origin_url, info.size
 
     full_path = os.path.join(download_repo, name)
     short_name = name[:6] if len(name) > 6 else name
@@ -64,16 +62,16 @@ def download(url_manager, log_setting, raw_urlQ, downloadQ, download_repo, info:
             if exitcode == 0:
                 url_manager.remove_text_url(origin_url)
                 logger.info(f'download succeed: {short_name}')
-                return True
             else:
-                logger.info(f'download fail: {short_name}')
                 raw_urlQ.put(origin_url)
-            downloadQ.get()
+                logger.info(f'download fail: {short_name}')
         except Exception as e:
-            logger.warning(str(e))
             raw_urlQ.put(origin_url)
+            logger.warning(str(e))
+            logger.info(f'download fail: {short_name}')
+        downloadQ.get()
         url_manager.notify(logger)
-        return False
+    finishedQ.put(origin_url)
 
 
 def check_exists(logger, name, short_name, size, repos, download_repo):

@@ -12,7 +12,7 @@ from com.hebut.zephyrchole.pornhub_downloader.public import get_logger
 
 class UrlManager:
     def __init__(self, url_file, log_setting, pool_capacity, text_urlL, raw_urlQ, converting_urlQ, converted_urlQ,
-                 downloadQ):
+                 downloadQ, finishedQ):
         self.url_file = url_file
         self.back_up_path = f'{url_file}.bak'
         self.logger = get_logger('UrlManager', log_setting)
@@ -22,6 +22,7 @@ class UrlManager:
         self.converting_urlQ = converting_urlQ
         self.converted_urlQ = converted_urlQ
         self.downloadQ = downloadQ
+        self.finishedQ = finishedQ
         self.read_in_urls(url_file)
 
     def read_in_urls(self, url_file):
@@ -57,4 +58,4 @@ class UrlManager:
 
     def notify(self, logger):
         logger.info(
-            f'text:{len(self.text_urlL)} raw:{self.raw_urlQ.qsize()} converting:{self.converting_urlQ.qsize()} converted:{self.converted_urlQ.qsize()} download:{self.downloadQ.qsize()}')
+            f'text:{len(self.text_urlL)} raw:{self.raw_urlQ.qsize()} converting:{self.converting_urlQ.qsize()} converted:{self.converted_urlQ.qsize()} download:{self.downloadQ.qsize()} finished:{self.finishedQ.qsize()}')

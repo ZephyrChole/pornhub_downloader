@@ -39,16 +39,18 @@ def main(download_repo, url_file, level, pool_capacity=5, additional_repos=(), h
     converting_urlQ = manager.Queue()
     converted_urlQ = manager.Queue()
     downloadQ = manager.Queue()
+    finishedQ = manager.Queue()
     log_setting = LogSetting(level, hasConsole, hasFile)
 
-    url_manager = UrlManager(url_file, log_setting, pool_capacity, text_urlL, raw_urlQ, converting_urlQ, converted_urlQ,
-                             downloadQ)
+    url_manager = UrlManager(url_file=url_file, log_setting=log_setting, pool_capacity=pool_capacity,
+                             text_urlL=text_urlL, raw_urlQ=raw_urlQ, converting_urlQ=converting_urlQ,
+                             converted_urlQ=converted_urlQ, downloadQ=downloadQ, finishedQ=finishedQ)
 
     url_converter = Process(target=url_producer.run,
                             args=(url_manager, log_setting, pool_capacity, text_urlL, raw_urlQ, converting_urlQ,
                                   converted_urlQ, downloadQ, download_repo))
     downloader = Process(target=url_consumer.run,
-                         args=(url_manager, log_setting, raw_urlQ, converted_urlQ, downloadQ, download_repo,
+                         args=(url_manager, log_setting, raw_urlQ, converted_urlQ, downloadQ, finishedQ, download_repo,
                                additional_repos))
     url_converter.start()
     downloader.start()

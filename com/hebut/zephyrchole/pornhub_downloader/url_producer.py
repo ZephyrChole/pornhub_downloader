@@ -34,6 +34,8 @@ def run(url_manager, log_setting, pool_capacity, text_urlL, raw_urlQ, converting
             attempt = 0
             url = raw_urlQ.get()
             converting_urlQ.put(url)
+            url_manager.notify(logger)
+
             while attempt < 3:
                 attempt += 1
                 try:
@@ -43,15 +45,16 @@ def run(url_manager, log_setting, pool_capacity, text_urlL, raw_urlQ, converting
                     logger.warning(str(e))
                     logger.warning(f'retry {attempt}')
                     browser.quit()
+
             converting_urlQ.get()
             if attempt == 3:
                 logger.warning('retry 3 times,skip')
-                url_manager.notify(logger)
+                raw_urlQ.put(url)
+            url_manager.notify(logger)
         else:
             time.sleep(randint(1, 10))
     browser.quit()
     converted_urlQ.put(True)
-    return True
 
 
 def isDone(text_urls, download_queue):
@@ -104,6 +107,8 @@ def get_url_and_name(browser, logger, repo, origin_url):
 
     browser.find_element_by_css_selector('tr:last-child td a.getSize1').click()
     size = get_size(browser)
+    if not size:
+        logger.warning(f'{origin_url} cannot get size')
     logger.debug(f'converted info got.name: {name} url: {download_url} size: {size}M')
     return DownloadInfo(download_url, name, origin_url, size)
 
@@ -115,10 +120,12 @@ def get_noname(repo, count=0):
         return f'NoName{count}'
 
 
-def get_size(browser):
+def get_size(browser, attempt=0):
     result = re.search('(\d+) MB', WebDriverWait(browser, 30, 0.2).until(
         lambda x: x.find_element_by_css_selector('tr:last-child td span')).text)
     if result:
         return int(result.group(1))
+    elif attempt <= 100:
+        return get_size(browser, attempt + 1)
     else:
-        return get_size(browser)
+        return 0
