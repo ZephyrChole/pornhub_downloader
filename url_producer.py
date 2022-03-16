@@ -14,7 +14,7 @@ from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.support.wait import WebDriverWait
 
-from com.hebut.zephyrchole.pornhub_downloader.public import get_logger
+from public import get_logger
 
 
 class DownloadInfo:

@@ -10,8 +10,8 @@ from multiprocessing import Pool
 from random import randint
 from subprocess import Popen
 
-from com.hebut.zephyrchole.pornhub_downloader.public import get_logger
-from com.hebut.zephyrchole.pornhub_downloader.url_producer import DownloadInfo
+from public import get_logger
+from url_producer import DownloadInfo
 
 
 def run(url_manager, log_setting, raw_urlQ, converted_urlQ, downloadQ, finishedQ, download_repo, additional_repos):

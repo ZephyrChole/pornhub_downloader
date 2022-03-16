@@ -7,7 +7,7 @@
 import os
 import re
 from shutil import copyfile
-from com.hebut.zephyrchole.pornhub_downloader.public import get_logger
+from public import get_logger
 
 
 class UrlManager:

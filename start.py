@@ -6,10 +6,10 @@
 import os
 from multiprocessing import Manager, Process
 
-from com.hebut.zephyrchole.pornhub_downloader import url_consumer
-from com.hebut.zephyrchole.pornhub_downloader import url_producer
-from com.hebut.zephyrchole.pornhub_downloader.url_manager import UrlManager
-from com.hebut.zephyrchole.pornhub_downloader.public import LogSetting
+import url_consumer
+import url_producer
+from url_manager import UrlManager
+from public import LogSetting
 
 
 def check_path(dir_path):
