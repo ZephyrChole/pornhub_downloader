@@ -6,6 +6,7 @@
 # @time: 2021/3/26 14:59
 import os
 import re
+import time
 from threading import Thread
 
 from selenium import webdriver
@@ -28,6 +29,7 @@ class URLProducer(Thread):
             url = self.raw_urls.pop(0)
             self.refresh_url_file()
             self.downloadQ.put(get_video_url_and_name(self.browser, self.logger, self.download_dir, url))
+            time.sleep(1)
         self.downloadQ.put(False)
 
 
@@ -67,14 +69,13 @@ def get_url_and_name(browser, logger, repo, origin_url):
     # reformat name
     banned_symbols = ['?', '/', r'\\', ':', '*', '"', '<', '>', '|']
     name = re.sub('|'.join(list(map(lambda x: f'[{x}]', banned_symbols))), repl='', string=f'{raw_name}.mp4')
-
-    browser.find_element_by_css_selector('tr:last-child td a.getSize1').click()
+    logger.debug(f'converted info got.name: {name} url: {download_url}')
+    return download_url, name
+    # browser.find_element_by_css_selector('tr:last-child td a.getSize1').click()
     # size = get_size(browser)
     # if not size:
     #     logger.warning(f'{origin_url} cannot get size')
     # logger.debug(f'converted info got.name: {name} url: {download_url} size: {size}M')
-    logger.debug(f'converted info got.name: {name} url: {download_url}')
-    return download_url, name
 
 
 def get_noname(repo, count=0):
