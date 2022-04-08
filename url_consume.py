@@ -4,6 +4,8 @@
 # @software: PyCharm
 # @file: url_consume.py
 # @time: 2021/3/26 15:00
+import os
+
 import idm.download
 from threading import Thread
 
@@ -27,9 +29,11 @@ class URLConsumer(Thread):
                 self.logger.debug(f'url consumer{self.id_} exit')
                 break
             else:
-                download_url, name = v
+                download_url, name, origin_url = v
                 self.logger.info(f'url consumer{self.id_} <-- {name}')
-                self.downloader.download_wait4file(download_url, name, self.repo, 60 * 10)
+                if self.downloader.download_wait4file(download_url, name, self.repo, 60 * 10) is False:
+                    with open(os.path.join(self.repo, 'fail_urls.txt'), 'a') as file:
+                        file.write(origin_url + '\n')
 
 #
 # def run(url_manager, log_setting, raw_urlQ, converted_urlQ, downloadQ, finishedQ, download_repo, additional_repos):

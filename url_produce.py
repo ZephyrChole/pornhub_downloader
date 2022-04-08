@@ -11,13 +11,12 @@ import random
 import logging
 from threading import Thread
 
-from selenium import webdriver
-from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.support.wait import WebDriverWait
+from public import get_browser
 
 
 class URLProducer(Thread):
-    def __init__(self, download_dir, download_queue, get_urls, refresh_url_file, logger: logging):
+    def __init__(self, download_dir, download_queue, get_urls, logger: logging, refresh_url_file=None):
         super().__init__()
         self.download_dir = download_dir
         self.logger = logger
@@ -33,22 +32,15 @@ class URLProducer(Thread):
         self.logger.debug(f'url producer start')
         while len(self.raw_urls):
             url = self.raw_urls.pop(random.randint(0, len(self.raw_urls) - 1))
-            self.refresh_url_file()
-            download_url, name = get_video_url_and_name(self.browser, self.logger, self.download_dir, url)
-            self.downloadQ.put((download_url, name))
+            if self.refresh_url_file is not None:
+                self.refresh_url_file()
+            download_url, name, origin_url = get_video_url_and_name(self.browser, self.logger, self.download_dir, url)
+            self.downloadQ.put((download_url, name, origin_url))
             self.logger.info(f'url producer --> {name} progress:{self.whole_num - len(self.raw_urls)}/{self.whole_num}')
             time.sleep(1)
         self.downloadQ.put(False)
         self.browser.close()
         self.logger.debug('url producer exit')
-
-
-def get_browser(headless=False):
-    chrome_options = Options()
-    if headless:
-        chrome_options.add_argument('--headless')
-    chrome_options.add_experimental_option('excludeSwitches', ['enable-logging'])
-    return webdriver.Chrome(chrome_options=chrome_options)
 
 
 def get_video_url_and_name(browser, logger, download_repo, url):
@@ -80,7 +72,7 @@ def get_url_and_name(browser, logger, repo, origin_url):
     banned_symbols = ['?', '/', r'\\', ':', '*', '"', '<', '>', '|']
     name = re.sub('|'.join(list(map(lambda x: f'[{x}]', banned_symbols))), repl='', string=f'{raw_name}.mp4')
     logger.debug(f'converted info got.name: {name} url: {download_url}')
-    return download_url, name
+    return download_url, name, origin_url
     # browser.find_element_by_css_selector('tr:last-child td a.getSize1').click()
     # size = get_size(browser)
     # if not size:

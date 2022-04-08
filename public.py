@@ -8,6 +8,16 @@ import os
 import sys
 import time
 import logging
+from selenium import webdriver
+from selenium.webdriver.chrome.options import Options
+
+
+def get_browser(headless=False):
+    chrome_options = Options()
+    if headless:
+        chrome_options.add_argument('--headless')
+    chrome_options.add_experimental_option('excludeSwitches', ['enable-logging'])
+    return webdriver.Chrome(chrome_options=chrome_options)
 
 
 def check_path(dir_path):
