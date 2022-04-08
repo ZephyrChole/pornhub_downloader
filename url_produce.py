@@ -7,6 +7,7 @@
 import os
 import re
 import time
+import random
 import logging
 from threading import Thread
 
@@ -24,10 +25,12 @@ class URLProducer(Thread):
         self.downloadQ = download_queue
         self.raw_urls = get_urls()
         self.refresh_url_file = refresh_url_file
+        self.logger.debug(f'url producer init')
 
     def start(self):
+        self.logger.debug(f'url producer start')
         while len(self.raw_urls):
-            url = self.raw_urls.pop(0)
+            url = self.raw_urls.pop(random.randint(0, len(self.raw_urls) - 1))
             self.refresh_url_file()
             download_url, name = get_video_url_and_name(self.browser, self.logger, self.download_dir, url)
             self.downloadQ.put((download_url, name))

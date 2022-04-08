@@ -16,8 +16,10 @@ class URLConsumer(Thread):
         self.id_ = id_
         self.logger = logger
         self.downloader = downloader
+        self.logger.debug(f'url consumer{self.id_} init')
 
     def start(self) -> None:
+        self.logger.debug(f'url consumer{self.id_} start')
         while True:
             v = self.queue.get()
             if v is False:
