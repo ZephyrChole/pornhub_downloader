@@ -27,7 +27,7 @@ class URLProducer(Thread):
         self.refresh_url_file = refresh_url_file
         self.logger.debug(f'url producer init')
 
-    def start(self):
+    def run(self):
         self.logger.debug(f'url producer start')
         while len(self.raw_urls):
             url = self.raw_urls.pop(random.randint(0, len(self.raw_urls) - 1))
