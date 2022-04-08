@@ -33,7 +33,7 @@ class URLProducer(Thread):
             self.downloadQ.put((download_url, name))
             self.logger.info(f'url producer -> {name}')
             time.sleep(1)
-            self.downloadQ.put(False)
+        self.downloadQ.put(False)
 
 
 def get_browser(headless=False):
