@@ -24,7 +24,7 @@ class URLProducer(Thread):
         self.raw_urls = get_urls()
         self.refresh_url_file = refresh_url_file
 
-    def main(self):
+    def start(self):
         while len(self.raw_urls):
             url = self.raw_urls.pop(0)
             self.refresh_url_file()
