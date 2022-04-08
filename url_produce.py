@@ -24,6 +24,7 @@ class URLProducer(Thread):
         self.browser = get_browser()
         self.downloadQ = download_queue
         self.raw_urls = get_urls()
+        self.whole_num = len(self.raw_urls)
         self.refresh_url_file = refresh_url_file
         self.logger.debug(f'url producer init')
 
@@ -34,7 +35,7 @@ class URLProducer(Thread):
             self.refresh_url_file()
             download_url, name = get_video_url_and_name(self.browser, self.logger, self.download_dir, url)
             self.downloadQ.put((download_url, name))
-            self.logger.info(f'url producer -> {name}')
+            self.logger.info(f'url producer -> {name} progress:{self.whole_num - len(self.raw_urls)}/{self.whole_num}')
             time.sleep(1)
         self.downloadQ.put(False)
         self.logger.info('url producer exit')
