@@ -7,6 +7,7 @@
 import os
 import re
 import time
+import logging
 from threading import Thread
 
 from selenium import webdriver
@@ -15,7 +16,7 @@ from selenium.webdriver.support.wait import WebDriverWait
 
 
 class URLProducer(Thread):
-    def __init__(self, download_dir, download_queue, get_urls, refresh_url_file, logger):
+    def __init__(self, download_dir, download_queue, get_urls, refresh_url_file, logger: logging):
         super().__init__()
         self.download_dir = download_dir
         self.logger = logger
@@ -28,9 +29,11 @@ class URLProducer(Thread):
         while len(self.raw_urls):
             url = self.raw_urls.pop(0)
             self.refresh_url_file()
-            self.downloadQ.put(get_video_url_and_name(self.browser, self.logger, self.download_dir, url))
+            download_url, name = get_video_url_and_name(self.browser, self.logger, self.download_dir, url)
+            self.downloadQ.put((download_url, name))
+            self.logger.info(f'url producer -> {name}')
             time.sleep(1)
-        self.downloadQ.put(False)
+            self.downloadQ.put(False)
 
 
 def get_browser(headless=False):

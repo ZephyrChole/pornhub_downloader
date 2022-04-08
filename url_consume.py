@@ -9,10 +9,11 @@ from threading import Thread
 
 
 class URLConsumer(Thread):
-    def __init__(self, repo, queue, logger, downloader: idm.download.Downloader):
+    def __init__(self, repo, queue, id_, logger, downloader: idm.download.Downloader):
         super().__init__()
         self.repo = repo
         self.queue = queue
+        self.id_ = id_
         self.logger = logger
         self.downloader = downloader
 
@@ -24,6 +25,7 @@ class URLConsumer(Thread):
                 break
             else:
                 download_url, name = v
+                self.logger.info(f'url consumer{self.id_} <-- {name}')
                 self.downloader.download_wait4file(download_url, name, self.repo, 60 * 10)
 
 #

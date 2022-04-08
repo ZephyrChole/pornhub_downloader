@@ -18,7 +18,7 @@ def main(download_dir, url_file, idm_path, level=logging.INFO, has_console=True,
     logger = get_logger('pornhub download', level, has_console, has_file)
     manager = URLManager(url_file, logger)
     producer = URLProducer(download_dir, downloadQ, manager.get_urls, manager.refresh_url_file, logger)
-    consumers = [URLConsumer(download_dir, downloadQ, logger, downloader) for i in range(5)]
+    consumers = [URLConsumer(download_dir, downloadQ, i, logger, downloader) for i in range(5)]
     producer.start()
     for c in consumers:
         c.start()
