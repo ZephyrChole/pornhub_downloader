@@ -12,6 +12,7 @@ import logging
 from threading import Thread
 
 from selenium.webdriver.support.wait import WebDriverWait
+from selenium.common.exceptions import TimeoutException
 from public import get_browser
 
 
@@ -34,10 +35,15 @@ class URLProducer(Thread):
             url = self.raw_urls.pop(random.randint(0, len(self.raw_urls) - 1))
             if self.refresh_url_file is not None:
                 self.refresh_url_file()
-            download_url, name, origin_url = get_video_url_and_name(self.browser, self.logger, self.download_dir, url)
-            self.downloadQ.put((download_url, name, origin_url))
-            self.logger.info(f'url producer --> {name} progress:{self.whole_num - len(self.raw_urls)}/{self.whole_num}')
-            time.sleep(1)
+            try:
+                download_url, name, origin_url = get_video_url_and_name(self.browser, self.logger, self.download_dir,
+                                                                        url)
+                self.downloadQ.put((download_url, name, origin_url))
+                self.logger.info(
+                    f'url producer --> {name} progress:{self.whole_num - len(self.raw_urls)}/{self.whole_num}')
+                time.sleep(1)
+            except TimeoutException:
+                self.raw_urls.insert(0, url)
         self.downloadQ.put(False)
         self.browser.close()
         self.logger.debug('url producer exit')
