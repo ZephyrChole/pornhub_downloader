@@ -27,7 +27,9 @@ def start_from_model_file(model_file, download_dir, url_file, idm_path, level=lo
     input('now turn on the proxy')
     with open(model_file) as file:
         content = file.readlines()
-    models = list(map(lambda line: Model(url_name=line.strip()), content))
+    model_names = list(map(lambda x: x.strip(), content))
+    model_names = list(filter(lambda x: x, model_names))
+    models = list(map(lambda name: Model(name), model_names))
     for m in models:
         m.get_urls()
     input('now turn off the proxy')
