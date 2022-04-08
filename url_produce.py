@@ -22,6 +22,7 @@ class URLProducer(Thread):
         self.download_dir = download_dir
         self.logger = logger
         self.browser = get_browser()
+        self.browser.minimize_window()
         self.downloadQ = download_queue
         self.raw_urls = get_urls()
         self.whole_num = len(self.raw_urls)
