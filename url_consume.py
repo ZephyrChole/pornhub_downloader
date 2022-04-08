@@ -24,7 +24,7 @@ class URLConsumer(Thread):
             v = self.queue.get()
             if v is False:
                 self.queue.put(v)
-                self.logger.info(f'url consumer{self.id_} exit')
+                self.logger.debug(f'url consumer{self.id_} exit')
                 break
             else:
                 download_url, name = v

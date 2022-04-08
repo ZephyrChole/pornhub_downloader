@@ -38,7 +38,7 @@ class URLProducer(Thread):
             self.logger.info(f'url producer --> {name} progress:{self.whole_num - len(self.raw_urls)}/{self.whole_num}')
             time.sleep(1)
         self.downloadQ.put(False)
-        self.logger.info('url producer exit')
+        self.logger.debug('url producer exit')
 
 
 def get_browser(headless=False):
