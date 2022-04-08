@@ -13,8 +13,8 @@ class URLManager:
         self.url_file = url_file
         self.back_up_path = f'{url_file}.bak'
         self.logger = logger
-        self.read_in_urls(url_file)
         self.urls = []
+        self.read_in_urls(url_file)
 
     def read_in_urls(self, url_file):
         if os.path.exists(self.back_up_path):
