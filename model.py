@@ -22,4 +22,5 @@ class Model:
                 except NoSuchElementException:
                     break
             browser.close()
+            print(f'model:{self.url_name} got {len(self.urls)} from Internet')
         return self.urls
