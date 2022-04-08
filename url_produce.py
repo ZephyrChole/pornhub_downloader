@@ -4,7 +4,6 @@
 # @software: PyCharm
 # @file: url_produce.py
 # @time: 2021/3/26 14:59
-
 import os
 import re
 from threading import Thread
@@ -32,9 +31,10 @@ class URLProducer(Thread):
         self.downloadQ.put(False)
 
 
-def get_browser():
+def get_browser(headless=False):
     chrome_options = Options()
-    chrome_options.add_argument('--headless')
+    if headless:
+        chrome_options.add_argument('--headless')
     chrome_options.add_experimental_option('excludeSwitches', ['enable-logging'])
     return webdriver.Chrome(chrome_options=chrome_options)
 
