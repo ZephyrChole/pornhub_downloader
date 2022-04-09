@@ -5,9 +5,9 @@
 # @file: url_consume.py
 # @time: 2021/3/26 15:00
 import os
-
-import idm.download
 from threading import Thread
+import idm.download
+from util import is_exist
 
 
 class URLConsumer(Thread):
@@ -31,6 +31,8 @@ class URLConsumer(Thread):
             else:
                 download_url, name, origin_url = v
                 self.logger.info(f'url consumer{self.id_} <-- {name}')
-                if self.downloader.download_wait4file(download_url, name, self.repo, 60 * 10) is False:
+                if is_exist(self.repo,name):
+                    self.logger.info(f'{name} already exists,skipped')
+                elif self.downloader.download_wait4file(download_url, name, self.repo, 60 * 10) is False:
                     with open(os.path.join(self.repo, 'fail_urls.txt'), 'a') as file:
                         file.write(origin_url + '\n')
