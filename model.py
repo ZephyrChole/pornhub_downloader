@@ -13,6 +13,8 @@ class Model:
             browser = get_browser()
             browser.minimize_window()
             browser.get(f'https://cn.pornhub.com/model/{self.url_name}/videos')
+            browser.execute_script("window.scrollTo(0, document.body.scrollHeight);")
+            browser.implicitly_wait(15)
             a = 0
             while True:
                 a += 1
