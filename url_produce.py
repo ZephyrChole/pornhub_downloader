@@ -27,15 +27,16 @@ class URLProducer(Thread):
         self.videos = get_videos()
         self.whole_num = len(self.videos)
         self.refresh_url_file = refresh_url_file
-        self.logger.debug(f'url producer init')
+        self.logger.debug('url producer init')
 
     def run(self):
-        self.logger.debug(f'url producer start')
+        self.logger.debug('url producer start')
         while len(self.videos):
             v = self.videos.pop(random.randint(0, len(self.videos) - 1))
             url, name = v.url, v.name
             if name is not None:
                 if is_exist(self.download_dir, name):
+                    self.logger.info(f'{name} already exist in {self.download_dir},skipped')
                     continue
             if self.refresh_url_file is not None:
                 self.refresh_url_file()
