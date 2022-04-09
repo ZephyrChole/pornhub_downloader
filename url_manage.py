@@ -6,6 +6,7 @@
 # @time: 2021/3/26 15:00
 import os
 import re
+from util import Video
 
 
 class URLManager:
@@ -13,7 +14,7 @@ class URLManager:
         self.url_file = url_file
         self.back_up_path = f'{url_file}.bak'
         self.logger = logger
-        self.urls = []
+        self.videos = []
         self.read_in_urls(url_file)
 
     def read_in_urls(self, url_file):
@@ -26,21 +27,24 @@ class URLManager:
             self.read_in(url_file)
             if os.path.exists(self.back_up_path):
                 os.remove(self.back_up_path)
-        self.logger.info(f'read in {len(self.urls)} url(s) <-- {self.url_file}')
+        self.logger.info(f'read in {len(self.videos)} url(s) <-- {self.url_file}')
 
     def read_in(self, url_file):
+        urls = []
         with open(url_file) as file:
             content = file.readlines()
             for url in content:
                 url = url.strip()
                 if len(url) > 0 and re.match(r'https?://(cn|www)\.pornhub.com/view_video\.php\?viewkey=[a-zA-Z0-9]+',
                                              url):
-                    self.urls.append(url)
+                    urls.append(url)
+        for url in set(urls):
+            self.videos.append(Video(url))
 
-    def get_urls(self):
-        return self.urls
+    def get_videos(self):
+        return self.videos
 
     def refresh_url_file(self):
         with open(self.url_file, 'w') as file:
-            for url in self.urls:
-                file.write(url + '\n')
+            for v in self.videos:
+                file.write(v.url + '\n')

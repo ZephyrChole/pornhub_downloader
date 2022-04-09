@@ -13,26 +13,30 @@ from threading import Thread
 
 from selenium.webdriver.support.wait import WebDriverWait
 from selenium.common.exceptions import TimeoutException
-from public import get_browser
+from util import get_browser, is_exist
 
 
 class URLProducer(Thread):
-    def __init__(self, download_dir, download_queue, get_urls, logger: logging, refresh_url_file=None):
+    def __init__(self, download_dir, download_queue, get_videos, logger: logging, refresh_url_file=None):
         super().__init__()
         self.download_dir = download_dir
         self.logger = logger
         self.browser = get_browser()
         self.browser.minimize_window()
         self.downloadQ = download_queue
-        self.raw_urls = get_urls()
-        self.whole_num = len(self.raw_urls)
+        self.videos = get_videos()
+        self.whole_num = len(self.videos)
         self.refresh_url_file = refresh_url_file
         self.logger.debug(f'url producer init')
 
     def run(self):
         self.logger.debug(f'url producer start')
-        while len(self.raw_urls):
-            url = self.raw_urls.pop(random.randint(0, len(self.raw_urls) - 1))
+        while len(self.videos):
+            v = self.videos.pop(random.randint(0, len(self.videos) - 1))
+            url, name = v.url, v.name
+            if name is not None:
+                if is_exist(self.download_dir, name):
+                    continue
             if self.refresh_url_file is not None:
                 self.refresh_url_file()
             try:
@@ -40,10 +44,10 @@ class URLProducer(Thread):
                                                                         url)
                 self.downloadQ.put((download_url, name, origin_url))
                 self.logger.info(
-                    f'url producer --> {name} progress:{self.whole_num - len(self.raw_urls)}/{self.whole_num}')
+                    f'url producer --> {name} progress:{self.whole_num - len(self.videos)}/{self.whole_num}')
                 time.sleep(1)
             except TimeoutException:
-                self.raw_urls.insert(0, url)
+                self.videos.insert(0, v)
         self.downloadQ.put(False)
         self.browser.close()
         self.logger.debug('url producer exit')
@@ -79,11 +83,6 @@ def get_url_and_name(browser, logger, repo, origin_url):
     name = re.sub('|'.join(list(map(lambda x: f'[{x}]', banned_symbols))), repl='', string=f'{raw_name}.mp4')
     logger.debug(f'converted info got.name: {name} url: {download_url}')
     return download_url, name, origin_url
-    # browser.find_element_by_css_selector('tr:last-child td a.getSize1').click()
-    # size = get_size(browser)
-    # if not size:
-    #     logger.warning(f'{origin_url} cannot get size')
-    # logger.debug(f'converted info got.name: {name} url: {download_url} size: {size}M')
 
 
 def get_noname(repo, count=0):
@@ -91,58 +90,3 @@ def get_noname(repo, count=0):
         return get_noname(repo, count + 1)
     else:
         return f'NoName{count}'
-
-
-#
-# def get_size(browser, attempt=0):
-#     result = re.search('(\d+) MB', WebDriverWait(browser, 30, 0.2).until(
-#         lambda x: x.find_element_by_css_selector('tr:last-child td span')).text)
-#     if result:
-#         return int(result.group(1))
-#     elif attempt <= 100:
-#         return get_size(browser, attempt + 1)
-#     else:
-#         return 10 * 6
-#
-# def run(url_manager, log_setting, pool_capacity, text_urlL, raw_urlQ, converting_urlQ, converted_urlQ, downloadQ,
-#         download_repo):
-#     logger = get_logger('UrlConverter', log_setting)
-#     browser = get_browser()
-#     while not isDone(text_urlL, downloadQ):
-#         if canContinue(raw_urlQ, downloadQ, converted_urlQ, pool_capacity):
-#             attempt = 0
-#             url = raw_urlQ.get()
-#             converting_urlQ.put(url)
-#             url_manager.notify(logger)
-#
-#             while attempt < 3:
-#                 attempt += 1
-#                 try:
-#                     converted_urlQ.put(get_video_url_and_name(browser, logger, download_repo, url))
-#                     break
-#                 except Exception as e:
-#                     logger.warning(str(e))
-#                     logger.warning(f'retry {attempt}')
-#                     browser.quit()
-#
-#             converting_urlQ.get()
-#             if attempt == 3:
-#                 logger.warning('retry 3 times,skip')
-#                 raw_urlQ.put(url)
-#             url_manager.notify(logger)
-#         else:
-#             time.sleep(randint(1, 10))
-#     browser.quit()
-#     converted_urlQ.put(True)
-#
-#
-# def isDone(text_urls, download_queue):
-#     return len(text_urls) == 0 and download_queue.empty()
-#
-#
-# def canContinue(produce_url_queue, download_queue, download_url_queue, pool_capacity):
-#     return not produce_url_queue.empty() and not isFullDownloadQueue(download_queue, download_url_queue, pool_capacity)
-
-
-def isFullDownloadQueue(download_queue, download_url_queue, pool_capacity):
-    return download_queue.qsize() + download_url_queue.qsize() == pool_capacity

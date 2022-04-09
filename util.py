@@ -12,6 +12,19 @@ from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 
 
+class Video:
+    def __init__(self, url, name=None):
+        self.url = url
+        self.name = name
+
+
+def is_exist(dir_, name):
+    for i in os.listdir(dir_):
+        if name in i:
+            return True
+    return False
+
+
 def get_browser(headless=False):
     chrome_options = Options()
     if headless:
