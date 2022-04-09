@@ -3,8 +3,9 @@ from selenium.common.exceptions import NoSuchElementException
 
 
 class Model:
-    def __init__(self, url_name):
+    def __init__(self, url_name,logger):
         self.url_name = url_name
+        self.logger = logger
         self.videos = []
 
     def get_videos(self):
@@ -23,5 +24,5 @@ class Model:
                 except NoSuchElementException:
                     break
             browser.close()
-            print(f'model:{self.url_name} got {len(self.videos)} from Internet')
+            self.logger.info(f'model:{self.url_name} got {len(self.videos)} from Internet')
         return self.videos

@@ -25,19 +25,19 @@ class URLManagerNoFile:
 def start_from_model_file(model_file, download_dir, idm_path, level=logging.INFO, has_console=True,
                           has_file=False):
     input('now turn on the proxy')
+    logger = get_logger('pornhub download', level, has_console, has_file)
     with open(model_file) as file:
         content = file.readlines()
     model_names = list(map(lambda x: x.strip(), content))
     model_names = list(filter(lambda x: x, model_names))
     model_names = set(model_names)
-    models = list(map(lambda name: Model(name), model_names))
+    models = list(map(lambda name: Model(name, logger), model_names))
     for m in models:
         m.get_videos()
     input('now turn off the proxy')
     downloader = Downloader(idm_path)
     for m in models:
         downloadQ = Queue()
-        logger = get_logger('pornhub download', level, has_console, has_file)
         manager = URLManagerNoFile(m.get_videos())
         model_dir = os.path.join(download_dir, m.url_name)
         producer = URLProducer(model_dir, downloadQ, manager.get_videos, logger)
