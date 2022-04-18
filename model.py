@@ -12,15 +12,16 @@ class Model:
         if len(self.videos) == 0:
             browser = get_browser()
             browser.minimize_window()
-            page_index = 0
+            page_index = 1
             while True:
-                if page_index == 0:
+                if page_index == 1:
                     browser.get(f'https://cn.pornhub.com/model/{self.url_name}/videos')
                 else:
+                    print(f'https://cn.pornhub.com/model/{self.url_name}/videos?page={page_index}')
                     browser.get(f'https://cn.pornhub.com/model/{self.url_name}/videos?page={page_index}')
                 browser.execute_script("window.scrollTo(0, document.body.scrollHeight);")
                 browser.implicitly_wait(15)
-                if page_index != 0 and '错误' in browser.find_element_by_css_selector('h1 span').text:
+                if page_index != 1 and '错误' in browser.find_element_by_css_selector('h1 span').text:
                     break
                 video_index = 0
                 while True:
@@ -33,6 +34,6 @@ class Model:
                     except NoSuchElementException:
                         break
                 page_index += 1
-                browser.close()
+            browser.close()
             self.logger.info(f'model:{self.url_name} got {len(self.videos)} from Internet')
         return self.videos
