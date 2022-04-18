@@ -1,3 +1,6 @@
 [submodule "idm"]
 	path = idm
 	url = git@github.com:ZephyrChole/idm.git
+[submodule "info_cacher"]
+	path = info_cacher
+	url = git@github.com:ZephyrChole/info_cacher.git
