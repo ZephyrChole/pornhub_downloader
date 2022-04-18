@@ -8,10 +8,13 @@ class Model:
         self.logger = logger
         self.videos = []
 
-    def get_videos(self):
+    def get_videos(self, br=None):
         if len(self.videos) == 0:
-            browser = get_browser()
-            browser.minimize_window()
+            if br is None:
+                browser = get_browser()
+                browser.minimize_window()
+            else:
+                browser = br
             page_index = 1
             while True:
                 if page_index == 1:
@@ -36,6 +39,7 @@ class Model:
                     except NoSuchElementException:
                         break
                 page_index += 1
-            browser.close()
+            if br is None:
+                browser.close()
             self.logger.info(f'model:{self.url_name} got {len(self.videos)} from Internet')
         return self.videos
