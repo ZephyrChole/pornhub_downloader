@@ -7,7 +7,7 @@
 import os
 from threading import Thread
 import idm.download
-from util import is_exist
+from util import is_exist, check_path
 
 
 class URLConsumer(Thread):
@@ -19,6 +19,7 @@ class URLConsumer(Thread):
         self.logger = logger
         self.downloader = downloader
         self.logger.debug(f'url consumer{self.id_} init')
+        check_path(self.repo)
 
     def run(self) -> None:
         self.logger.debug(f'url consumer{self.id_} start')
@@ -31,7 +32,7 @@ class URLConsumer(Thread):
             else:
                 download_url, name, origin_url = v
                 self.logger.info(f'url consumer{self.id_} <-- {name}')
-                if is_exist(self.repo,name):
+                if is_exist(self.repo, name):
                     self.logger.info(f'{name} already exists,skipped')
                 elif self.downloader.download_wait4file(download_url, name, self.repo, 60 * 10) is False:
                     with open(os.path.join(self.repo, 'fail_urls.txt'), 'a') as file:
