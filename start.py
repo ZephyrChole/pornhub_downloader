@@ -47,12 +47,12 @@ def start_from_model_file(model_file, download_dir, idm_path, level=logging.INFO
                 models.append(model)
     else:
         models = list(map(lambda name: Model(name, logger), model_names))
-    cacher.dumps(models)
     browser = get_browser()
     browser.minimize_window()
     for m in models:
         m.get_videos(browser)
     browser.close()
+    cacher.dumps(models)
     input('now turn off the proxy')
     downloader = Downloader(idm_path)
     check_path(download_dir)
