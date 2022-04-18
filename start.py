@@ -33,6 +33,7 @@ def start_from_model_file(model_file, download_dir, idm_path, level=logging.INFO
     model_names = set(model_names)
     models = list(map(lambda name: Model(name, logger), model_names))
     browser = get_browser()
+    browser.minimize_window()
     for m in models:
         m.get_videos(browser)
     browser.close()
