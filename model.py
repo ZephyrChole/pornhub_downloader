@@ -17,7 +17,7 @@ class Model:
                 if page_index == 0:
                     browser.get(f'https://cn.pornhub.com/model/{self.url_name}/videos')
                 else:
-                    browser.get(f'https://cn.pornhub.com/model/{self.url_name}/videos/?page={page_index}')
+                    browser.get(f'https://cn.pornhub.com/model/{self.url_name}/videos?page={page_index}')
                 browser.execute_script("window.scrollTo(0, document.body.scrollHeight);")
                 browser.implicitly_wait(15)
                 if page_index != 0 and '错误' in browser.find_element_by_css_selector('h1 span').text:
