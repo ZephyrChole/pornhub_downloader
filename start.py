@@ -12,6 +12,7 @@ from url_manage import URLManager
 from queue import Queue
 from util import get_logger, check_path, get_browser
 from model import Model
+from info_cacher.main import InfoCacher
 
 
 class URLManagerNoFile:
@@ -30,8 +31,23 @@ def start_from_model_file(model_file, download_dir, idm_path, level=logging.INFO
         content = file.readlines()
     model_names = list(map(lambda x: x.strip(), content))
     model_names = list(filter(lambda x: x, model_names))
-    model_names = set(model_names)
-    models = list(map(lambda name: Model(name, logger), model_names))
+    model_names = list(set(model_names))
+
+    cacher = InfoCacher('./', 'hsd')
+    models = []
+    if cacher.has_valid_cache:
+        old = cacher.loads()
+        old_name_to_self = {m.url_name: m for m in old}
+        for name in model_names:
+            model = old_name_to_self.get(name)
+            if model is None:
+                models.append(Model(name, logger))
+            else:
+                model.logger = logger
+                models.append(model)
+    else:
+        models = list(map(lambda name: Model(name, logger), model_names))
+    cacher.dumps(models)
     browser = get_browser()
     browser.minimize_window()
     for m in models:
