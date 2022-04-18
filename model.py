@@ -33,6 +33,6 @@ class Model:
                     except NoSuchElementException:
                         break
                 page_index += 1
-            browser.close()
+                browser.close()
             self.logger.info(f'model:{self.url_name} got {len(self.videos)} from Internet')
         return self.videos
