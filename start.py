@@ -10,7 +10,7 @@ from url_consume import URLConsumer
 from url_produce import URLProducer
 from url_manage import URLManager
 from queue import Queue
-from util import get_logger
+from util import get_logger,check_path
 from model import Model
 
 
@@ -36,6 +36,7 @@ def start_from_model_file(model_file, download_dir, idm_path, level=logging.INFO
         m.get_videos()
     input('now turn off the proxy')
     downloader = Downloader(idm_path)
+    check_path(download_dir)
     for m in models:
         downloadQ = Queue()
         manager = URLManagerNoFile(m.get_videos())
