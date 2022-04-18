@@ -17,7 +17,6 @@ class Model:
                 if page_index == 1:
                     browser.get(f'https://cn.pornhub.com/model/{self.url_name}/videos')
                 else:
-                    print(f'https://cn.pornhub.com/model/{self.url_name}/videos?page={page_index}')
                     browser.get(f'https://cn.pornhub.com/model/{self.url_name}/videos?page={page_index}')
                 browser.execute_script("window.scrollTo(0, document.body.scrollHeight);")
                 browser.implicitly_wait(15)
