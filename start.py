@@ -38,8 +38,8 @@ def start_from_model_file(model_file, download_dir, idm_path, level=logging.INFO
     logger = get_logger('pornhub download', level, has_console, has_file)
     model_names = get_model_names(model_file)
     cacher = InfoCacher('./', 'pornhub')
-    models = []
     if cacher.has_valid_cache:
+        models = []
         old = cacher.loads()
         old_name_to_self = {m.url_name: m for m in old}
         for name in model_names:
