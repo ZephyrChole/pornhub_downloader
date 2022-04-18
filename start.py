@@ -23,17 +23,21 @@ class URLManagerNoFile:
         return self.videos
 
 
-def start_from_model_file(model_file, download_dir, idm_path, level=logging.INFO, has_console=True,
-                          has_file=False):
-    input('now turn on the proxy')
-    logger = get_logger('pornhub download', level, has_console, has_file)
-    with open(model_file) as file:
+def get_model_names(file):
+    with open(file) as file:
         content = file.readlines()
     model_names = list(map(lambda x: x.strip(), content))
     model_names = list(filter(lambda x: x, model_names))
     model_names = list(set(model_names))
+    return model_names
 
-    cacher = InfoCacher('./', 'hsd')
+
+def start_from_model_file(model_file, download_dir, idm_path, level=logging.INFO, has_console=True,
+                          has_file=False):
+    input('now turn on the proxy')
+    logger = get_logger('pornhub download', level, has_console, has_file)
+    model_names = get_model_names(model_file)
+    cacher = InfoCacher('./', 'pornhub')
     models = []
     if cacher.has_valid_cache:
         old = cacher.loads()
