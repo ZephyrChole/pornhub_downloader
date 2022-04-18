@@ -41,5 +41,9 @@ class Model:
                 page_index += 1
             if br is None:
                 browser.close()
-            self.logger.info(f'model:{self.url_name} got {len(self.videos)} from Internet')
+            has_name_num = 0
+            for v in self.videos:
+                if v.name != '' and v.name != None:
+                    has_name_num += 1
+            self.logger.info(f'model:{self.url_name} {has_name_num}/{len(self.videos)} has_name/whole from Internet')
         return self.videos
