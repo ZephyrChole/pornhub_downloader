@@ -7,7 +7,7 @@
 import os
 from threading import Thread
 import idm.download
-from util import is_exist, check_path
+from util import has_keyword_file, check_path
 
 
 class URLConsumer(Thread):
@@ -32,7 +32,7 @@ class URLConsumer(Thread):
             else:
                 download_url, name, origin_url = v
                 self.logger.info(f'consumer{self.id_} <-- {name}')
-                if is_exist(self.repo, name):
+                if has_keyword_file(self.repo, name):
                     self.logger.info(f'consumer{self.id_}: {name} already exists,skipped')
                 elif self.downloader.download_wait4file(download_url, name, self.repo, 60 * 10) is False:
                     with open(os.path.join(self.repo, 'fail_urls.txt'), 'a') as file:

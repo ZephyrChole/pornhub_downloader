@@ -10,6 +10,7 @@ import time
 import logging
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
+from selenium.webdriver.common.desired_capabilities import DesiredCapabilities
 
 
 class Video:
@@ -18,7 +19,7 @@ class Video:
         self.name = name
 
 
-def is_exist(dir_, name):
+def has_keyword_file(dir_, name):
     for i in os.listdir(dir_):
         if name in i:
             return True
@@ -26,11 +27,13 @@ def is_exist(dir_, name):
 
 
 def get_browser(headless=False):
+    des = DesiredCapabilities.CHROME
+    des["pageLoadStrategy"] = "none"
     chrome_options = Options()
     if headless:
         chrome_options.add_argument('--headless')
     chrome_options.add_experimental_option('excludeSwitches', ['enable-logging'])
-    return webdriver.Chrome(chrome_options=chrome_options)
+    return webdriver.Chrome(chrome_options=chrome_options, desired_capabilities=des)
 
 
 def check_path(dir_path):
