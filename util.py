@@ -20,8 +20,9 @@ class Video:
 
 
 def has_keyword_file(dir_, name):
+    n = name.strip()
     for i in os.listdir(dir_):
-        if name in i:
+        if n in i:
             return True
     return False
 
