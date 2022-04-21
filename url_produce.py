@@ -13,27 +13,28 @@ from threading import Thread
 
 from selenium.webdriver.support.wait import WebDriverWait
 from selenium.common.exceptions import TimeoutException
-from util import get_browser, has_keyword_file
+from util import get_browser, has_keyword_file, get_logger
 
 
 class URLProducer(Thread):
-    def __init__(self, download_dir, download_queue, get_videos, logger: logging, refresh_url_file=None):
+    def __init__(self, download_dir, download_queue, get_videos, id_, has_console, has_file, refresh_url_file=None):
         super().__init__()
         self.download_dir = download_dir
-        self.logger = logger
         self.browser = get_browser()
         self.browser.minimize_window()
         self.downloadQ = download_queue
         self.videos = get_videos()
+        self.id_ = id_
+        self.logger = get_logger(f'producer{self.id_}', logging.INFO, has_console, has_file)
         self.whole_num = len(self.videos)
         self.refresh_url_file = refresh_url_file
-        self.logger.debug('producer init')
+        self.logger.debug(f'producer{self.id_} init')
 
     def run(self):
         def is_exist(dir_, n):
             return n is not None and has_keyword_file(dir_, n)
 
-        self.logger.debug('producer start')
+        self.logger.debug(f'producer{self.id_} start')
         while len(self.videos):
             if self.refresh_url_file is not None:
                 self.refresh_url_file()
@@ -42,7 +43,7 @@ class URLProducer(Thread):
             url, name = v.url, v.name
 
             if is_exist(self.download_dir, name):
-                self.logger.info(f'producer {self.whole_num - len(self.videos)}/{self.whole_num} >> {name}')
+                self.logger.info(f'producer{self.id_} {self.whole_num - len(self.videos)}/{self.whole_num} >> {name}')
                 continue
             try:
                 self.enter_fill_click(self.browser, self.logger, url)
@@ -50,13 +51,13 @@ class URLProducer(Thread):
                                                                        url)
                 self.downloadQ.put((download_url, name, origin_url))
                 self.logger.info(
-                    f'producer {self.whole_num - len(self.videos)}/{self.whole_num} --> {name}')
+                    f'producer{self.id_} {self.whole_num - len(self.videos)}/{self.whole_num} --> {name}')
                 time.sleep(1)
             except TimeoutException:
                 self.videos.insert(0, v)
         self.downloadQ.put(False)
         self.browser.close()
-        self.logger.debug('producer exit')
+        self.logger.debug(f'producer{self.id_} exit')
 
     @staticmethod
     def enter_fill_click(browser, logger, url):

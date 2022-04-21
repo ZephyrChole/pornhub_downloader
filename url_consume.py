@@ -5,18 +5,19 @@
 # @file: url_consume.py
 # @time: 2021/3/26 15:00
 import os
+import logging
 from threading import Thread
 import idm.download
-from util import has_keyword_file, check_path
+from util import has_keyword_file, check_path, get_logger
 
 
 class URLConsumer(Thread):
-    def __init__(self, repo, queue, id_, logger, downloader: idm.download.Downloader):
+    def __init__(self, repo, queue, downloader: idm.download.Downloader, id_, has_console, has_file):
         super().__init__()
         self.repo = repo
         self.queue = queue
         self.id_ = id_
-        self.logger = logger
+        self.logger = get_logger(f'producer{self.id_}', logging.INFO, has_console, has_file)
         self.downloader = downloader
         self.logger.debug(f'consumer{self.id_} init')
         check_path(self.repo)

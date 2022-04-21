@@ -38,6 +38,8 @@ class MultiModel:
         self.download_dir = download_dir
         self.downloader = idm
         self.logger = get_logger('pornhub download', level, has_console, has_file)
+        self.has_console = has_console
+        self.has_file = has_file
 
     def load_cache(self):
         cacher = InfoCacher('./', 'pornhub')
@@ -72,12 +74,16 @@ class MultiModel:
             downloadQ = Queue()
             manager = URLManagerNoFile(m.get_videos())
             model_dir = os.path.join(self.download_dir, m.url_name)
-            producer = URLProducer(model_dir, downloadQ, manager.get_videos, self.logger)
-            consumers = [URLConsumer(model_dir, downloadQ, i, self.logger, self.downloader) for i in range(5)]
-            producer.start()
+            producers = [URLProducer(model_dir, downloadQ, manager.get_videos, i, self.has_console, self.has_file) for i
+                         in range(produce_pool)]
+            consumers = [URLConsumer(model_dir, downloadQ, self.downloader, i, self.has_console, self.has_file) for i in
+                         range(consume_pool)]
+            for p in producers:
+                p.start()
             for c in consumers:
                 c.start()
-            producer.join()
+            for p in producers:
+                p.join()
             for c in consumers:
                 c.join()
 
