@@ -32,46 +32,54 @@ def get_model_names(file):
     return model_names
 
 
-def start_from_model_file(model_file, download_dir, idm_path, level=logging.INFO, has_console=True,
-                          has_file=False):
-    input('now turn on the proxy')
-    logger = get_logger('pornhub download', level, has_console, has_file)
-    model_names = get_model_names(model_file)
-    cacher = InfoCacher('./', 'pornhub')
-    if cacher.has_valid_cache:
-        models = []
-        old = cacher.loads()
-        old_name_to_self = {m.url_name: m for m in old}
-        for name in model_names:
-            model = old_name_to_self.get(name)
-            if model is None:
-                models.append(Model(name, logger))
-            else:
-                model.logger = logger
-                models.append(model)
-    else:
-        models = list(map(lambda name: Model(name, logger), model_names))
-    browser = get_browser()
-    browser.minimize_window()
-    for m in models:
-        m.get_videos(browser)
-    browser.close()
-    cacher.dumps(models)
-    input('now turn off the proxy')
-    downloader = Downloader(idm_path)
-    check_path(download_dir)
-    for m in models:
-        downloadQ = Queue()
-        manager = URLManagerNoFile(m.get_videos())
-        model_dir = os.path.join(download_dir, m.url_name)
-        producer = URLProducer(model_dir, downloadQ, manager.get_videos, logger)
-        consumers = [URLConsumer(model_dir, downloadQ, i, logger, downloader) for i in range(5)]
-        producer.start()
-        for c in consumers:
-            c.start()
-        producer.join()
-        for c in consumers:
-            c.join()
+class MultiModel:
+    def __init__(self, model_file, download_dir, idm, level=logging.INFO, has_console=True, has_file=False):
+        self.model_names = get_model_names(model_file)
+        self.download_dir = download_dir
+        self.downloader = idm
+        self.logger = get_logger('pornhub download', level, has_console, has_file)
+
+    def load_cache(self):
+        cacher = InfoCacher('./', 'pornhub')
+        if cacher.has_valid_cache:
+            models = []
+            old = cacher.loads()
+            old_name_to_self = {m.url_name: m for m in old}
+            for name in self.model_names:
+                model = old_name_to_self.get(name)
+                if model is None:
+                    models.append(Model(name, self.logger))
+                else:
+                    model.logger = self.logger
+                    models.append(model)
+        else:
+            models = list(map(lambda name: Model(name, self.logger), self.model_names))
+
+        input('now turn on the proxy')
+        browser = get_browser()
+        browser.minimize_window()
+        for m in models:
+            m.get_videos(browser)
+        browser.close()
+        cacher.dumps(models)
+        input('now turn off the proxy')
+        return models
+
+    def main(self, produce_pool=1, consume_pool=5):
+        models = self.load_cache()
+        check_path(self.download_dir)
+        for m in models:
+            downloadQ = Queue()
+            manager = URLManagerNoFile(m.get_videos())
+            model_dir = os.path.join(self.download_dir, m.url_name)
+            producer = URLProducer(model_dir, downloadQ, manager.get_videos, self.logger)
+            consumers = [URLConsumer(model_dir, downloadQ, i, self.logger, self.downloader) for i in range(5)]
+            producer.start()
+            for c in consumers:
+                c.start()
+            producer.join()
+            for c in consumers:
+                c.join()
 
 
 def main(download_dir, url_file, idm_path, level=logging.INFO, has_console=True, has_file=False):
