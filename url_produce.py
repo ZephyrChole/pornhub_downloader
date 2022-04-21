@@ -42,7 +42,7 @@ class URLProducer(Thread):
             url, name = v.url, v.name
 
             if is_exist(self.download_dir, name):
-                self.logger.info(f'producer: {name} already exist in {self.download_dir},skipped')
+                self.logger.info(f'producer {self.whole_num - len(self.videos)}/{self.whole_num} >> {name}')
                 continue
             try:
                 self.enter_fill_click(self.browser, self.logger, url)
@@ -50,7 +50,7 @@ class URLProducer(Thread):
                                                                        url)
                 self.downloadQ.put((download_url, name, origin_url))
                 self.logger.info(
-                    f'producer --> {name} progress:{self.whole_num - len(self.videos)}/{self.whole_num}')
+                    f'producer {self.whole_num - len(self.videos)}/{self.whole_num} --> {name}')
                 time.sleep(1)
             except TimeoutException:
                 self.videos.insert(0, v)

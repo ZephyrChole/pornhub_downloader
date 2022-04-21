@@ -33,7 +33,7 @@ class URLConsumer(Thread):
                 download_url, name, origin_url = v
                 self.logger.info(f'consumer{self.id_} <-- {name}')
                 if has_keyword_file(self.repo, name):
-                    self.logger.info(f'consumer{self.id_}: {name} already exists,skipped')
+                    self.logger.info(f'consumer{self.id_} >> {name}')
                 elif self.downloader.download_wait4file(download_url, name, self.repo, 60 * 10) is False:
                     with open(os.path.join(self.repo, 'fail_urls.txt'), 'a') as file:
                         file.write(origin_url + '\n')
