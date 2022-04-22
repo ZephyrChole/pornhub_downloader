@@ -76,6 +76,8 @@ class MultiModel:
             model_dir = os.path.join(self.download_dir, m.url_name)
             producers = [URLProducer(model_dir, downloadQ, manager.get_videos, i, self.has_console, self.has_file) for i
                          in range(produce_pool)]
+            # download_dir, download_queue, get_videos, id_, has_console, has_file, refresh_url_file = None
+            # repo, queue, downloader: idm.download.Downloader, id_, has_console, has_file
             consumers = [URLConsumer(model_dir, downloadQ, self.downloader, i, self.has_console, self.has_file) for i in
                          range(consume_pool)]
             for p in producers:
@@ -88,16 +90,23 @@ class MultiModel:
                 c.join()
 
 
-def main(download_dir, url_file, idm_path, level=logging.INFO, has_console=True, has_file=False):
+def main(download_dir, url_file, idm_path, produce_pool, consume_pool, level=logging.INFO, has_console=True,
+         has_file=False):
     downloader = Downloader(idm_path)
     downloadQ = Queue()
     logger = get_logger('pornhub download', level, has_console, has_file)
     manager = URLManager(url_file, logger)
-    producer = URLProducer(download_dir, downloadQ, manager.get_videos, logger, manager.refresh_url_file)
-    consumers = [URLConsumer(download_dir, downloadQ, i, logger, downloader) for i in range(5)]
-    producer.start()
+    producers = [URLProducer(download_dir, downloadQ, manager.get_videos, i, has_console, has_file) for i
+                 in range(produce_pool)]
+    # download_dir, download_queue, get_videos, id_, has_console, has_file, refresh_url_file = None
+    # repo, queue, downloader: idm.download.Downloader, id_, has_console, has_file
+    consumers = [URLConsumer(download_dir, downloadQ, downloader, i, has_console, has_file) for i in
+                 range(consume_pool)]
+    for p in producers:
+        p.start()
     for c in consumers:
         c.start()
-    producer.join()
+    for p in producers:
+        p.join()
     for c in consumers:
         c.join()
