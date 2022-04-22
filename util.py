@@ -56,6 +56,7 @@ def check_path(dir_path):
 def get_logger(name, level, has_console=False, has_file=False):
     formatter = logging.Formatter('%(asctime)s %(name)s %(levelname)s: %(message)s')
     logger = logging.getLogger(name)
+    logger.handlers = []
     logger.setLevel(level)
 
     if has_console:
