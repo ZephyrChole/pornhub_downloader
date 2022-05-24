@@ -1,5 +1,8 @@
+import time
+
 from util import get_browser, Video
 from selenium.common.exceptions import NoSuchElementException
+from selenium.webdriver.common.action_chains import ActionChains
 
 
 class Model:
@@ -27,7 +30,7 @@ class Model:
                         break
                 except NoSuchElementException:
                     pass
-                for i in range(1,4):
+                for i in range(1, 4):
                     try:
                         browser.execute_script("window.scrollTo(0, document.body.scrollHeight);")
                         break
@@ -35,13 +38,15 @@ class Model:
                         self.logger.warning(f'scroll fail{i}')
                 video_index = 0
                 while True:
-                    video_index += 1
                     try:
                         tar = browser.find_element_by_css_selector(
-                            f'li.pcVideoListItem.js-pop.videoblock.videoBox:nth-child({video_index}) div div a')
+                            f'ul#mostRecentVideosSection li.pcVideoListItem.js-pop.videoblock.videoBox:nth-child({video_index}) div div a')
+                        ActionChains(browser).move_to_element(tar).perform()
+                        time.sleep(1)
                         url, name = tar.get_attribute('href'), tar.get_attribute('data-title')
                         self.videos.append(Video(url, name))
-                    except NoSuchElementException:
+                    except NoSuchElementException as e:
+                        print(e)
                         break
                 page_index += 1
             if br is None:
