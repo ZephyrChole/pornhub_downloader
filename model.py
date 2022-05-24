@@ -1,7 +1,7 @@
 import time
 
 from util import get_browser, Video
-from selenium.common.exceptions import NoSuchElementException
+from selenium.common.exceptions import NoSuchElementException, MoveTargetOutOfBoundsException
 from selenium.webdriver.common.action_chains import ActionChains
 
 
@@ -15,7 +15,7 @@ class Model:
         if len(self.videos) == 0:
             if br is None:
                 browser = get_browser()
-                browser.minimize_window()
+                # browser.minimize_window()
             else:
                 browser = br
             page_index = 1
@@ -38,12 +38,19 @@ class Model:
                         self.logger.warning(f'scroll fail{i}')
                 video_index = 0
                 while True:
+                    video_index += 1
                     try:
                         tar = browser.find_element_by_css_selector(
                             f'ul#mostRecentVideosSection li.pcVideoListItem.js-pop.videoblock.videoBox:nth-child({video_index}) div div a')
-                        ActionChains(browser).move_to_element(tar).perform()
+                        for i in range(1, 11):
+                            try:
+                                ActionChains(browser).move_to_element(tar).perform()
+                            except MoveTargetOutOfBoundsException:
+                                self.logger.debug(f'video {video_index} wait hover {i} times')
+                                time.sleep(3)
                         time.sleep(1)
                         url, name = tar.get_attribute('href'), tar.get_attribute('data-title')
+                        self.logger.debug(f'{url}, {name}')
                         self.videos.append(Video(url, name))
                     except NoSuchElementException as e:
                         print(e)

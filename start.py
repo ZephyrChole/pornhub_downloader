@@ -59,7 +59,7 @@ class MultiModel:
 
         input('now turn on the proxy')
         browser = get_browser()
-        browser.minimize_window()
+        # browser.minimize_window()
         for m in models:
             m.get_videos(browser)
         browser.close()
