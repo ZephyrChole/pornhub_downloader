@@ -4,6 +4,7 @@
 # @file: util.py
 # @time: 2021/5/6 17:48
 import os
+import random
 import logging
 from idm.download import Downloader
 from url_consume import URLConsumer
@@ -69,6 +70,7 @@ class MultiModel:
 
     def main(self, produce_pool=1, consume_pool=5):
         models = self.load_cache()
+        random.shuffle(models)
         check_path(self.download_dir)
         for m in models:
             downloadQ = Queue()
