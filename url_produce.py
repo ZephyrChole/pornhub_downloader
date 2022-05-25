@@ -56,10 +56,10 @@ class URLProducer(Thread):
                     f'{self.whole_num - len(self.videos)}/{self.whole_num} --> {name}')
                 time.sleep(1)
             except TimeoutException as e:
-                self.logger.warning('TimeoutException' + str(e))
+                self.logger.warning('TimeoutException: ' + str(e))
                 self.videos.insert(0, v)
             except WebDriverException as e:
-                self.logger.warning('WebDriverException' + str(e))
+                self.logger.warning('WebDriverException: ' + str(e))
                 self.browser = get_browser()
                 self.videos.insert(0, v)
         # self.downloadQ.put(False)
