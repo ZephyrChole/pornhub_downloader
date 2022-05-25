@@ -38,7 +38,7 @@ class MultiModel:
         self.model_names = get_model_names(model_file)
         self.download_dir = download_dir
         self.downloader = idm
-        self.level=level
+        self.level = level
         self.logger = get_logger('pornhub download', level, has_console, has_file)
         self.has_console = has_console
         self.has_file = has_file
@@ -84,18 +84,20 @@ class MultiModel:
             manager = URLManagerNoFile(m.get_videos())
             model_dir = os.path.join(self.download_dir, m.url_name)
             producers = [
-                URLProducer(model_dir, downloadQ, manager.get_videos, i, self.level, self.has_console, self.has_file) for i
-                in range(produce_pool)]
+                URLProducer(model_dir, downloadQ, manager.get_videos, i, self.level, self.has_console, self.has_file)
+                for i in range(produce_pool)]
             # download_dir, download_queue, get_videos, id_, has_console, has_file, refresh_url_file = None
             # repo, queue, downloader: idm.download.Downloader, id_, has_console, has_file
-            consumers = [URLConsumer(model_dir, downloadQ, self.downloader, i, self.level, self.has_console, self.has_file)
-                         for i in range(consume_pool)]
+            consumers = [
+                URLConsumer(model_dir, downloadQ, self.downloader, i, self.level, self.has_console, self.has_file)
+                for i in range(consume_pool)]
             for p in producers:
                 p.start()
             for c in consumers:
                 c.start()
             for p in producers:
                 p.join()
+            downloadQ.put(False)
             for c in consumers:
                 c.join()
 

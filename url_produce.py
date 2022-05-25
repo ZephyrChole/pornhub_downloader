@@ -12,12 +12,13 @@ import logging
 from threading import Thread
 
 from selenium.webdriver.support.wait import WebDriverWait
-from selenium.common.exceptions import TimeoutException, WebDriverException
+from selenium.common.exceptions import TimeoutException, WebDriverException, NoSuchElementException
 from util import get_browser, has_keyword_file, get_logger
 
 
 class URLProducer(Thread):
-    def __init__(self, download_dir, download_queue, get_videos, id_,level, has_console, has_file, refresh_url_file=None):
+    def __init__(self, download_dir, download_queue, get_videos, id_, level, has_console, has_file,
+                 refresh_url_file=None):
         super().__init__()
         self.download_dir = download_dir
         self.browser = get_browser()
@@ -40,7 +41,7 @@ class URLProducer(Thread):
                 self.refresh_url_file()
 
             v = self.videos.pop(random.randint(0, len(self.videos) - 1))
-            self.logger.debug(f'got {v}')
+            self.logger.debug(f'got {v.url} {v.name}')
             url, name = v.url, v.name
 
             if is_exist(self.download_dir, name):
@@ -54,12 +55,14 @@ class URLProducer(Thread):
                 self.logger.info(
                     f'{self.whole_num - len(self.videos)}/{self.whole_num} --> {name}')
                 time.sleep(1)
-            except TimeoutException:
+            except TimeoutException as e:
+                self.logger.warning(e)
                 self.videos.insert(0, v)
-            except WebDriverException:
+            except WebDriverException as e:
+                self.logger.warning(e)
                 self.browser = get_browser()
                 self.videos.insert(0, v)
-        self.downloadQ.put(False)
+        # self.downloadQ.put(False)
         self.browser.close()
         self.logger.debug(f'exit')
 
@@ -74,7 +77,13 @@ class URLProducer(Thread):
             lambda x: x.find_element_by_css_selector('input.videoLink') and x.find_element_by_css_selector(
                 'input.getVideo'))
         browser.find_element_by_css_selector('input.videoLink').send_keys(url)
-        browser.find_element_by_css_selector('input#submitbutton').click()
+        for i in range(1, 11):
+            try:
+                browser.find_element_by_css_selector('input#submitbutton').click()
+                time.sleep(3)
+            except NoSuchElementException:
+                break
+            logger.debug(f'click input {i} times')
         logger.debug('fill in and click')
 
     def get_url_and_name(self, browser, logger, repo, origin_url):
