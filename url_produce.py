@@ -12,38 +12,39 @@ import logging
 from threading import Thread
 
 from selenium.webdriver.support.wait import WebDriverWait
-from selenium.common.exceptions import TimeoutException
+from selenium.common.exceptions import TimeoutException, WebDriverException
 from util import get_browser, has_keyword_file, get_logger
 
 
 class URLProducer(Thread):
-    def __init__(self, download_dir, download_queue, get_videos, id_, has_console, has_file, refresh_url_file=None):
+    def __init__(self, download_dir, download_queue, get_videos, id_,level, has_console, has_file, refresh_url_file=None):
         super().__init__()
         self.download_dir = download_dir
         self.browser = get_browser()
-        self.browser.minimize_window()
+        # self.browser.minimize_window()
         self.downloadQ = download_queue
         self.videos = get_videos()
         self.id_ = id_
-        self.logger = get_logger(f'producer{self.id_}', logging.INFO, has_console, has_file)
+        self.logger = get_logger(f'producer{self.id_}', level, has_console, has_file)
         self.whole_num = len(self.videos)
         self.refresh_url_file = refresh_url_file
-        self.logger.debug(f'producer{self.id_} init')
+        self.logger.debug(f'init')
 
     def run(self):
         def is_exist(dir_, n):
             return n is not None and has_keyword_file(dir_, n)
 
-        self.logger.debug(f'producer{self.id_} start')
+        self.logger.debug(f'start')
         while len(self.videos):
             if self.refresh_url_file is not None:
                 self.refresh_url_file()
 
             v = self.videos.pop(random.randint(0, len(self.videos) - 1))
+            self.logger.debug(f'got {v}')
             url, name = v.url, v.name
 
             if is_exist(self.download_dir, name):
-                self.logger.info(f'producer{self.id_} {self.whole_num - len(self.videos)}/{self.whole_num} >> {name}')
+                self.logger.info(f'{self.whole_num - len(self.videos)}/{self.whole_num} >> {name}')
                 continue
             try:
                 self.enter_fill_click(self.browser, self.logger, url)
@@ -51,13 +52,16 @@ class URLProducer(Thread):
                                                                        url)
                 self.downloadQ.put((download_url, name, origin_url))
                 self.logger.info(
-                    f'producer{self.id_} {self.whole_num - len(self.videos)}/{self.whole_num} --> {name}')
+                    f'{self.whole_num - len(self.videos)}/{self.whole_num} --> {name}')
                 time.sleep(1)
             except TimeoutException:
                 self.videos.insert(0, v)
+            except WebDriverException:
+                self.browser = get_browser()
+                self.videos.insert(0, v)
         self.downloadQ.put(False)
         self.browser.close()
-        self.logger.debug(f'producer{self.id_} exit')
+        self.logger.debug(f'exit')
 
     @staticmethod
     def enter_fill_click(browser, logger, url):
@@ -70,7 +74,7 @@ class URLProducer(Thread):
             lambda x: x.find_element_by_css_selector('input.videoLink') and x.find_element_by_css_selector(
                 'input.getVideo'))
         browser.find_element_by_css_selector('input.videoLink').send_keys(url)
-        browser.find_element_by_css_selector('input.getVideo').click()
+        browser.find_element_by_css_selector('input#submitbutton').click()
         logger.debug('fill in and click')
 
     def get_url_and_name(self, browser, logger, repo, origin_url):

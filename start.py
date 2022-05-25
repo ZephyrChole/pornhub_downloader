@@ -38,6 +38,7 @@ class MultiModel:
         self.model_names = get_model_names(model_file)
         self.download_dir = download_dir
         self.downloader = idm
+        self.level=level
         self.logger = get_logger('pornhub download', level, has_console, has_file)
         self.has_console = has_console
         self.has_file = has_file
@@ -71,17 +72,24 @@ class MultiModel:
     def main(self, produce_pool=1, consume_pool=5):
         models = self.load_cache()
         random.shuffle(models)
+        for i in range(len(models)):
+            m = models[i]
+            if m.url_name == 'rolakiki':
+                models.pop(i)
+                models.insert(0, m)
+                break
         check_path(self.download_dir)
         for m in models:
             downloadQ = Queue()
             manager = URLManagerNoFile(m.get_videos())
             model_dir = os.path.join(self.download_dir, m.url_name)
-            producers = [URLProducer(model_dir, downloadQ, manager.get_videos, i, self.has_console, self.has_file) for i
-                         in range(produce_pool)]
+            producers = [
+                URLProducer(model_dir, downloadQ, manager.get_videos, i, self.level, self.has_console, self.has_file) for i
+                in range(produce_pool)]
             # download_dir, download_queue, get_videos, id_, has_console, has_file, refresh_url_file = None
             # repo, queue, downloader: idm.download.Downloader, id_, has_console, has_file
-            consumers = [URLConsumer(model_dir, downloadQ, self.downloader, i, self.has_console, self.has_file) for i in
-                         range(consume_pool)]
+            consumers = [URLConsumer(model_dir, downloadQ, self.downloader, i, self.level, self.has_console, self.has_file)
+                         for i in range(consume_pool)]
             for p in producers:
                 p.start()
             for c in consumers:
@@ -98,11 +106,11 @@ def main(download_dir, url_file, idm_path, produce_pool, consume_pool, level=log
     downloadQ = Queue()
     logger = get_logger('pornhub download', level, has_console, has_file)
     manager = URLManager(url_file, logger)
-    producers = [URLProducer(download_dir, downloadQ, manager.get_videos, i, has_console, has_file) for i
+    producers = [URLProducer(download_dir, downloadQ, manager.get_videos, i, level, has_console, has_file) for i
                  in range(produce_pool)]
     # download_dir, download_queue, get_videos, id_, has_console, has_file, refresh_url_file = None
     # repo, queue, downloader: idm.download.Downloader, id_, has_console, has_file
-    consumers = [URLConsumer(download_dir, downloadQ, downloader, i, has_console, has_file) for i in
+    consumers = [URLConsumer(download_dir, downloadQ, downloader, i, level, has_console, has_file) for i in
                  range(consume_pool)]
     for p in producers:
         p.start()
