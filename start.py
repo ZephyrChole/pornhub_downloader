@@ -72,12 +72,6 @@ class MultiModel:
     def main(self, produce_pool=1, consume_pool=5):
         models = self.load_cache()
         random.shuffle(models)
-        for i in range(len(models)):
-            m = models[i]
-            if m.url_name == 'rolakiki':
-                models.pop(i)
-                models.insert(0, m)
-                break
         check_path(self.download_dir)
         for m in models:
             downloadQ = Queue()
