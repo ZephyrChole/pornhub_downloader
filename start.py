@@ -76,6 +76,7 @@ class MultiModel:
         random.shuffle(models)
         check_path(self.download_dir)
         for m in models:
+            self.logger.info(f'model:{m.url_name} start')
             downloadQ = Queue()
             manager = URLManagerNoFile(m.get_videos())
             model_dir = os.path.join(self.download_dir, m.url_name)
@@ -96,6 +97,7 @@ class MultiModel:
             downloadQ.put(False)
             for c in consumers:
                 c.join()
+            self.logger.info(f'model:{m.url_name} exit')
 
 
 def main(download_dir, url_file, idm_path, produce_pool, consume_pool, level=logging.INFO, has_console=True,
