@@ -59,14 +59,16 @@ class MultiModel:
         else:
             models = list(map(lambda name: Model(name, self.logger), self.model_names))
 
-        input('now turn on the proxy')
-        browser = get_browser()
-        # browser.minimize_window()
-        for m in models:
-            m.get_videos(browser)
-        browser.close()
-        cacher.dumps(models)
-        input('now turn off the proxy')
+        need_get_videos_models = [m for m in models if m.need_get_videos]
+        if len(need_get_videos_models) > 0:
+            input('now turn on the proxy')
+            browser = get_browser()
+            # browser.minimize_window()
+            for m in need_get_videos_models:
+                m.get_videos(browser)
+            browser.close()
+            cacher.dumps(models)
+            input('now turn off the proxy')
         return models
 
     def main(self, produce_pool=1, consume_pool=5):

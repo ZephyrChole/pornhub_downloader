@@ -11,6 +11,10 @@ class Model:
         self.logger = logger
         self.videos = []
 
+    @property
+    def need_get_videos(self):
+        return len(self.videos) == 0
+
     def get_videos(self, br=None):
         if len(self.videos) == 0:
             if br is None:
